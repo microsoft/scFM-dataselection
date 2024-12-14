@@ -8,6 +8,7 @@ In this project, we assess three model architectures pre-trained to perform as f
 
 Our evaluation uses two main tasks: cell type classification and batch integration. In these tasks, we compare the performance of Geneformer and scGPT against simple baselines and investigate the role of pre-training dataset size and diversity on downstream performance.
 
+![Fig. 1: Strategy to assess the effects of pre-training dataset size and diversity on scFM performance. (A) Schematic of the downsampling approaches, sizes of downsampled pre-training datasets, and data splitting strategy. (B) An example of what evaluation performance might \textit{a priori} be expected to look like as a function of pre-training dataset size and diversity.](images/fig1.png)
 
 
 # Dependencies
