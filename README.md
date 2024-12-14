@@ -18,8 +18,16 @@ First install `python` package dependencies
 pip install -r requirements.txt
 ```
 
-Using the submodules provided, install `Geneformer`, `ssl_in_scg`, and install `zero-shot-scfoundation`
+Install our fork of `ssl_in_scg`
 
+```
+git clone https://github.com/v-mahughes/ssl_in_scg/tree/6e67bde8c949710099b137858ad6efe013ce18fe
+
+cd ssl_in_scg
+pip install -e .
+```
+
+Install `zero-shot-scfoundation`
 ```
 git clone https://github.com/microsoft/zero-shot-scfoundation
 
