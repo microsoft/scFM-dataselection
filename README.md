@@ -1,14 +1,68 @@
-# Project
+# Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+This repository contains the code that accompanies our paper, "Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance". You can find the preprint of the paper here.
 
-As the maintainer of this project, please make a few updates:
+# Project Description
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+In this project, we assess three model architectures pre-trained to perform as foundation models in the context of single-cell RNA-seq: scVI, SSL, and Geneformer. We pre-trained these models on subsets of the scTab corpus using three different downsampling schemes (uniform random downsampling, cell type re-weighting, and geometric sketching) and evaluated these models in (1) the zero-shot regime and (2) when fine-tuned.
+
+Our evaluation uses two main tasks: cell type classification and batch integration. In these tasks, we compare the performance of Geneformer and scGPT against simple baselines and investigate the role of pre-training dataset size and diversity on downstream performance.
+
+
+
+# Dependencies
+
+First install `python` package dependencies
+
+```
+pip install -r requirements.txt
+```
+
+Using the submodules provided, install `Geneformer`, `ssl_in_scg`, and install `zero-shot-scfoundation`
+
+```
+git clone https://github.com/microsoft/zero-shot-scfoundation
+
+cd sc_foundation_evals
+pip install .
+```
+
+# Reproducing results
+
+## Downloading the scTab corpus
+
+The instructions for downloading the scTab corpus are in the `data/preprocess` directory.
+
+## Creating pre-training datasets
+
+The instructions for downampling the scTab corpus to generate pre-training datasets are in the `downsampling` directory.
+
+## Pre-training foundation models
+
+The instructions for pre-training all models are in the `train_scripts` directory. Each model architecture has its own directory.
+
+## Fine-tuning foundation models
+
+The instructions for pre-training all models are in the `finetune-scripts` directory. Each model architecture has its own directory.
+
+
+## Evaluating model performance
+
+The instructions for evaluating all models are in the `eval` directory. There are scripts for both zero-shot and fine-tuned evaluations.
+
+## Reproducing figures
+
+Jupyter notebooks that produce each of the figures (after running all model evaluations) are in the `plotting` directory.
+
+## Questions and Feedback
+For questions or concerns with this project, please contact
+[Alan DenAdel](mailto:alan_denadel@brown.edu), [Ava Amini](mailto:ava.amini@microsoft.com), or [Lorin Crawford](mailto:lcrawford@microsoft.com). Any feedback on the software, manuscript, and tutorials is appreciated.
+
+## Citation
+
+## License
+
+This project is available under the MIT License.
 
 ## Contributing
 
