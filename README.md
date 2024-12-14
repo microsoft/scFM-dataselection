@@ -27,6 +27,15 @@ cd ssl_in_scg
 pip install -e .
 ```
 
+Install our fork of `Geneformer`
+
+```
+git clone https://github.com/lcrawlab/Geneformer
+
+cd Geneformer
+pip install .
+```
+
 Install `zero-shot-scfoundation`
 ```
 git clone https://github.com/microsoft/zero-shot-scfoundation
