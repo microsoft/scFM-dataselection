@@ -273,7 +273,7 @@ torch==2.0.1
 torchdata==0.7.1
 torchmetrics==1.4.0
 torchvision==0.15.2
-tornado==6.4
+tornado==6.4.2
 tqdm==4.66.5
 traitlets==5.14.3
 transformers==4.39.2
