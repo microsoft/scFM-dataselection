@@ -66,7 +66,8 @@ Jupyter notebooks that produce each of the figures (after running all model eval
 For questions or concerns with this project, please contact
 [Alan DenAdel](mailto:alan_denadel@brown.edu), [Ava Amini](mailto:ava.amini@microsoft.com), or [Lorin Crawford](mailto:lcrawford@microsoft.com). Any feedback on the software, manuscript, and tutorials is appreciated.
 
-## Citation
+## Relevant Citations
+A. DenAdel, M. Hughes, A. Thoutam, A. Gupta, A.W. Navia, N. Fusi, S. Raghavan, P.S. Winter, A.P. Amini, and L. Crawford. Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance. _bioRxiv_.
 
 ## License
 
