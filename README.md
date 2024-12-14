@@ -63,7 +63,10 @@ The instructions for evaluating all models are in the `eval` directory. There ar
 Jupyter notebooks that produce each of the figures (after running all model evaluations) are in the `plotting` directory.
 
 ## Questions and Feedback
-For questions or concerns with this project, please contact
+
+If you have any questions, or find any issues with the code, please open an issue in this repository. We also welcome any contributions to the code - be sure to checkout the Contributing section below.
+
+If you have questions or concerns with this project and do not want to create an issue, please contact
 [Alan DenAdel](mailto:alan_denadel@brown.edu), [Ava Amini](mailto:ava.amini@microsoft.com), or [Lorin Crawford](mailto:lcrawford@microsoft.com). Any feedback on the software, manuscript, and tutorials is appreciated.
 
 ## Relevant Citations
