@@ -47,6 +47,9 @@ pip install .
 
 # Reproducing results
 
+![Fig. 3a: Schematic of analysis to find the learning saturation point. For each family of models (i.e., a downsampling strategy paired with a model) a saturation threshold of 95 percent of the maximum performance was computed, and the minimum pre-training dataset size that produced a model surpassing that threshold was identified. This dataset size was denoted the learning saturation point and is considered the point at which model performance saturated as a function of pre-training dataset size.](images/fig3a.png)
+
+
 ## Downloading the scTab corpus
 
 The instructions for downloading the scTab corpus are in the `data/preprocess` directory.
