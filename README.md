@@ -60,11 +60,11 @@ The instructions for downampling the scTab corpus to generate pre-training datas
 
 ## Pre-training foundation models
 
-The instructions for pre-training all models are in the `train_scripts` directory. Each model architecture has its own directory.
+The instructions for pre-training all models are in the `pretraining` directory. Each model architecture has its own directory.
 
 ## Fine-tuning foundation models
 
-The instructions for pre-training all models are in the `finetune-scripts` directory. Each model architecture has its own directory.
+The instructions for pre-training all models are in the `finetuning` directory. Each model architecture has its own directory.
 
 
 ## Evaluating model performance
