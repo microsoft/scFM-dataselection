@@ -1,6 +1,6 @@
 # Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance
 
-This repository contains the code that accompanies our paper, "Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance". You can find the preprint of the paper here.
+This repository contains the code that accompanies our paper, "Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance". You can find the preprint of the paper [here](https://www.biorxiv.org/content/10.1101/2024.12.13.628448v1).
 
 # Project Description
 
@@ -82,8 +82,21 @@ If you have any questions, or find any issues with the code, please open an issu
 If you have questions or concerns with this project and do not want to create an issue, please contact
 [Alan DenAdel](mailto:alan_denadel@brown.edu), [Ava Amini](mailto:ava.amini@microsoft.com), or [Lorin Crawford](mailto:lcrawford@microsoft.com). Any feedback on the software, manuscript, and tutorials is appreciated.
 
-## Relevant Citations
-A. DenAdel, M. Hughes, A. Thoutam, A. Gupta, A.W. Navia, N. Fusi, S. Raghavan, P.S. Winter, A.P. Amini, and L. Crawford. Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance. _bioRxiv_.
+## Relevant Citation (BibTeX)
+
+```
+@article {DenAdel2024.12.13.628448,
+	author = {DenAdel, Alan and Hughes, Madeline and Thoutam, Akshaya and Gupta, Anay and Navia, Andrew W. and Fusi, Nicolo and Raghavan, Srivatsan and Winter, Peter S. and Amini, Ava P. and Crawford, Lorin},
+	title = {Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance},
+	elocation-id = {2024.12.13.628448},
+	year = {2024},
+	doi = {10.1101/2024.12.13.628448},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2024/12/17/2024.12.13.628448},
+	eprint = {https://www.biorxiv.org/content/early/2024/12/17/2024.12.13.628448.full.pdf},
+	journal = {bioRxiv}
+}
+```
 
 ## License
 
