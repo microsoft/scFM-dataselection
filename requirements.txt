@@ -119,7 +119,7 @@ louvain==0.8.2
 Markdown==3.6
 markdown-it-py==3.0.0
 MarkupSafe==2.1.5
-matplotlib==3.9.2
+matplotlib==3.7.3
 matplotlib-inline==0.1.7
 mdurl==0.1.2
 merlin-dataloader==23.8.0
