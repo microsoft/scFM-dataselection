@@ -13,22 +13,23 @@ Our evaluation uses two main tasks: cell type classification and batch integrati
 
 # Dependencies
 
-First install `python` package dependencies
+First install `python` package dependencies (this can take 15+ minutes)
 
 ```
 pip install -r requirements.txt
 ```
 
-Install our fork of `ssl_in_scg`
+Install our fork of `ssl_in_scg` (this should only take about 2 minutes)
 
 ```
-git clone https://github.com/v-mahughes/ssl_in_scg/tree/6e67bde8c949710099b137858ad6efe013ce18fe
-
+git clone https://github.com/v-mahughes/ssl_in_scg
 cd ssl_in_scg
+git fetch
+git switch early-stopping
 pip install -e .
 ```
 
-Install our fork of `Geneformer`
+Install our fork of `Geneformer` (this should only take 20 seconds)
 
 ```
 git clone https://github.com/lcrawlab/Geneformer
@@ -37,11 +38,11 @@ cd Geneformer
 pip install .
 ```
 
-Install `zero-shot-scfoundation`
+Install `zero-shot-scfoundation` (this should only take 10 seconds)
 ```
 git clone https://github.com/microsoft/zero-shot-scfoundation
 
-cd sc_foundation_evals
+cd zero-shot-scfoundation
 pip install .
 ```
 
