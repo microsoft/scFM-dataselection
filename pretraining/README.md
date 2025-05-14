@@ -1,7 +1,21 @@
 # Pre-Training
 
 
-This directory contains directories for pre-training `scVI`, `SSL`, `Geneformer`. We give instructions running the pre-training scripts for each of these below:
+This directory contains directories for pre-training `PCA`, `scVI`, `SSL`, `Geneformer`. We give instructions running the pre-training scripts for each of these below:
+
+## PCA
+
+```bash
+SAMPLING=geometric_sketching
+PCT=75
+SEED=23
+
+TRAIN_FILE=/path/to/sctab/$SAMPLING/idx_"$PCT"pct_seed"$SEED"/idx_"$PCT"pct_seed"$SEED"_TRAIN.h5ad
+OUTPUT_DIR=./pca_models/$SAMPLING/idx_"$PCT"pct_seed"$SEED"
+
+
+python -u train_pca.py -a $TRAIN_FILE -o $OUTPUT_DIR --var_file adata_var.csv
+```
 
 ## scVI
 
