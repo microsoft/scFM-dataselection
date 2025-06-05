@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
 
+import numpy as np
 import torch
- 
+
 import scvi
 import anndata as ad
 from datetime import datetime
@@ -171,3 +172,12 @@ def load_finetuned_geneformer_model(downsampling_method, percentage, seed, datas
     model_dir = geneformer_directory / downsampling_method / dataset_name / f"idx_{percentage}pct_seed{seed}"
 
     return model_dir
+
+
+def load_pca_model(downsampling_method, percentage, seed, pca_directory):
+    model_dir = Path(pca_directory) / downsampling_method / f"idx_{percentage}pct_seed{seed}"
+    model_file = model_dir / f"idx_{percentage}pct_seed{seed}_TRAIN.npy"
+    model = np.load(model_file)
+    return model
+
+
