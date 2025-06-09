@@ -32,6 +32,8 @@ parser.add_argument("--out", type=str, required=True, help="out dir.")
 parser.add_argument("--datapath", type=str, required=True, help="datapath.")
 parser.add_argument("--lengths", type=str, required=True, help="length gile.")
 parser.add_argument("--epochs", type=int, required=True, help="epochs to train")
+parser.add_argument("--weight_decay", required=False, type=float, default=0.001)
+parser.add_argument("--num_embed_dim", required=False, type=int, default=256)
 
 args = parser.parse_args()
 
@@ -58,7 +60,7 @@ model_type = "bert"
 max_input_size = 2048
 num_layers = 6
 num_attn_heads = 4
-num_embed_dim = 256
+num_embed_dim = args.num_embed_dim
 intermed_size = num_embed_dim * 2
 activ_fn = "relu"
 initializer_range = 0.02
@@ -76,9 +78,12 @@ lr_schedule_fn = "linear"
 warmup_steps = 10000
 # epochs = 3
 optimizer = "adamw"
-weight_decay = 0.001
+weight_decay = args.weight_decay
 
 # Directories based on command line arguments
+print('WEIGHT DECAY', weight_decay)
+print('NUM_EMBED_DIM', num_embed_dim)
+
 rootdir = f"{args.out}"
 print(rootdir)
 current_date = datetime.datetime.now(timezone)
