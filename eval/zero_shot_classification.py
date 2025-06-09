@@ -94,9 +94,11 @@ def main():
     formatted_h5ad_file = sys.argv[8]
     model_directory = sys.argv[9]
     dict_dir = sys.argv[10]
+    output_dir = sys.argv[11]
 
-    dataset_name = h5ad_file.replace(".h5ad", "")
-
+    # dataset_name = h5ad_file.replace(".h5ad", "")
+    dataset_name = os.path.splitext(os.path.basename(h5ad_file))[0]
+    
     print("loading anndata")
     adata = ad.read_h5ad(h5ad_file)
 
@@ -113,7 +115,7 @@ def main():
         # can't have slashes in loom files
         adata.obs.rename(
             columns={"last_author/PI": "last_author_PI"}, inplace=True)
-      
+         
     if h5ad_file == "periodontitis.h5ad":
         print("removing slashes from column name (incompatible with loom format)")
         # can't have slashes in loom files
@@ -161,10 +163,10 @@ def main():
 
     metrics_csv = f"zero_shot_classification_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
-    out_dir = "classification_results"
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-    metrics_df.to_csv(out_dir + "/" + metrics_csv)
+    #out_dir = "classification_results"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    metrics_df.to_csv(os.path.join(output_dir, metrics_csv))
 
 
 if __name__ == "__main__":
