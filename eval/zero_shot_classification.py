@@ -96,7 +96,6 @@ def main():
     dict_dir = sys.argv[10]
     output_dir = sys.argv[11]
 
-    # dataset_name = h5ad_file.replace(".h5ad", "")
     dataset_name = os.path.splitext(os.path.basename(h5ad_file))[0]
     
     print("loading anndata")
@@ -163,7 +162,6 @@ def main():
 
     metrics_csv = f"zero_shot_classification_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
-    #out_dir = "classification_results"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     metrics_df.to_csv(os.path.join(output_dir, metrics_csv))

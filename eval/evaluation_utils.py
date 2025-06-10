@@ -125,20 +125,6 @@ def add_n_counts_to_adata(adata):
     adata.obs["n_counts"] = counts_per_cell
     return adata
 
-
-# def tokenize_adata(adata, var_file, dataset_name, cell_type_col):
-#     adata = add_ensembl_ids_to_adata(adata, var_file)
-#     adata = add_n_counts_to_adata(adata)
-#     tmp_dir = Path(f"tmp_adata_{dataset_name}")
-#     os.makedirs(tmp_dir)
-#     tmp_h5ad = tmp_dir / "tmp.h5ad"
-#     adata.write(tmp_h5ad)
-#     output_directory = Path(f"tmp_tokenized_data_{dataset_name}")
-#     output_prefix_chunk = ""
-#     tokenizer = TranscriptomeTokenizer({cell_type_col: cell_type_col}, nproc=8)
-#     tokenizer.tokenize_data(tmp_dir, output_directory,
-#                      output_prefix_chunk, file_format="h5ad")
-#     return str(output_directory) + ".dataset"
 def tokenize_adata(adata, var_file, dataset_name, cell_type_col=None):
     adata = add_ensembl_ids_to_adata(adata, var_file)
     adata = add_n_counts_to_adata(adata)
