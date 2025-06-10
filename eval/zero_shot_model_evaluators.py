@@ -314,4 +314,3 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
 
         return self.geneform.cell_embeddings
 
-

@@ -99,9 +99,11 @@ def main():
     formatted_h5ad_file = sys.argv[9]
     model_directory = sys.argv[10]
 
-    dict_dir = sys.argv[10]
+    dict_dir = sys.argv[11]
+    output_dir = sys.argv[12]
 
-    dataset_name = h5ad_file.strip(".h5ad")
+    dataset_name = os.path.splitext(os.path.basename(h5ad_file))[0]
+    
     metrics_csv = f"zero_shot_integration_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
     print("loading anndata")
@@ -145,10 +147,6 @@ def main():
 
     print(new_adata)
 
-    out_dir = "integration_results"
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
     metrics_df = get_scib_metrics_df(new_adata,
                                      dataset_name,
                                      downsampling_method,
@@ -161,8 +159,16 @@ def main():
                                      method,
                                      dict_dir,
                                      formatted_h5ad_file)
+    
+    metrics_csv = f"zero_shot_integration_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
+    
     print("Writing:", metrics_csv)
-    metrics_df.to_csv(out_dir + "/" + metrics_csv)
+    
+    print((os.path.join(output_dir, metrics_csv)))
+        
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    metrics_df.to_csv(os.path.join(output_dir, metrics_csv))    
 
 
 if __name__ == "__main__":
