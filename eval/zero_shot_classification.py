@@ -11,11 +11,18 @@ import pandas as pd
 import scanpy as sc
 import anndata as ad
 from evaluation_utils import prep_for_evaluation
-from zero_shot_model_evaluators import SSLZeroShotEvaluator, SCVIZeroShotEvaluator
-from zero_shot_model_evaluators import GeneformerZeroShotEvaluator
+
+
 from zero_shot_model_evaluators import VariableGeneZeroShotEvaluator
 from zero_shot_model_evaluators import PrincipalComponentsZeroShotEvaluator
-from model_loaders import load_scvi_model, load_ssl_model
+
+from zero_shot_model_evaluators import SCVIZeroShotEvaluator
+from zero_shot_model_evaluators import SSLZeroShotEvaluator
+from zero_shot_model_evaluators import GeneformerZeroShotEvaluator
+from zero_shot_model_evaluators import PretrainedPrincipalComponentsZeroShotEvaluator
+
+
+from model_loaders import load_scvi_model, load_ssl_model, load_pca_model
 from model_loaders import load_geneformer_model, get_ssl_checkpoint_file
 
 
@@ -62,6 +69,9 @@ def get_classification_metrics_df(train_adata,
             f"tmp_zero_shot_integration_geneformer_{random_string}")
         zero_shot_evaluator = GeneformerZeroShotEvaluator(
             geneformer_model, var_file, dict_dir, tmp_output_dir)
+    elif method == "PretrainedPCA": # todo test this
+        pca_model = load_pca_model(downsampling_method, percentage, seed, model_directory)
+        zero_shot_evaluator = PretrainedPrincipalComponentsZeroShotEvaluator(pca_model)
 
     classification_metrics = zero_shot_evaluator.evaluate_classification(
         train_adata, test_adata, cell_type_col)
@@ -128,7 +138,7 @@ def main():
 
     new_adata = prep_for_evaluation(adata, formatted_h5ad_file, var_file)
 
-    if method == "SSL":
+    if method == "SSL" or method == "PretrainedPCA":
         print("processing anndata")
         sc.pp.normalize_per_cell(new_adata, counts_per_cell_after=1e4)
         sc.pp.log1p(new_adata)
