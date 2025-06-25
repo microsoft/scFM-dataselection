@@ -1,5 +1,5 @@
 """zero_shot_classification.py evaluates the performance of a pre-trained model
-on an unseen dataset without fine-tuning."""
+at classifying an unseen dataset without fine-tuning."""
 import string
 import random
 from collections import defaultdict
@@ -59,7 +59,7 @@ def get_classification_metrics_df(train_adata,
         random_string = ''.join(random.choices(
             string.ascii_uppercase + string.digits, k=10))
         tmp_output_dir = Path(
-            f"tmp_zero_shot_integration_geneformer_{random_string}")
+            f"tmp_zero_shot_classification_geneformer_{random_string}")
         zero_shot_evaluator = GeneformerZeroShotEvaluator(
             geneformer_model, var_file, dict_dir, tmp_output_dir)
 
