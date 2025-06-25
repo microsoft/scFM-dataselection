@@ -193,7 +193,7 @@ class PretrainedPrincipalComponentsZeroShotEvaluator(ZeroShotEvaluator):
         self.embedding_name = "X_Pretrained_PCA"
         self.model = model
     def get_embeddings(self, adata):
-        return adata.X @ model
+        return adata.X @ self.model
 
 
 class SSLZeroShotEvaluator(ZeroShotEvaluator):

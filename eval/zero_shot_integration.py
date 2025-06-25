@@ -16,8 +16,11 @@ from model_loaders import get_ssl_checkpoint_file, load_geneformer_model
 from zero_shot_model_evaluators import VariableGeneZeroShotEvaluator
 from zero_shot_model_evaluators import PrincipalComponentsZeroShotEvaluator
 
-from zero_shot_model_evaluators import SSLZeroShotEvaluator, SCVIZeroShotEvaluator
+from zero_shot_model_evaluators import SCVIZeroShotEvaluator
+from zero_shot_model_evaluators import SSLZeroShotEvaluator
 from zero_shot_model_evaluators import GeneformerZeroShotEvaluator
+from zero_shot_model_evaluators import PretrainedPrincipalComponentsZeroShotEvaluator
+
 
 from evaluation_utils import prep_for_evaluation
 
@@ -61,6 +64,9 @@ def get_scib_metrics_df(adata,
             f"tmp_zero_shot_integration_geneformer_{random_string}")
         zero_shot_evaluator = GeneformerZeroShotEvaluator(
             geneformer_model, var_file, dict_dir, tmp_output_dir)
+    elif method == "PretrainedPCA": # todo test this
+        pca_model = load_pca_model(downsampling_method, percentage, seed, model_directory)
+        zero_shot_evaluator = PretrainedPrincipalComponentsZeroShotEvaluator(pca_model)
 
     scib_metrics = zero_shot_evaluator.evaluate_integration(
         adata, batch_col=batch_col, label_col=label_col)
