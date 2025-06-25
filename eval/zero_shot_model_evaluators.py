@@ -32,6 +32,7 @@ import scvi
 import scib
 
 from evaluation_utils import tokenize_adata, eval_classification_metrics
+from evaluation_utils import eval_expression_reconstruction_mse
 
 # https://github.com/microsoft/zero-shot-scfoundation/blob/main/sc_foundation_evals/utils.py
 # MODIFIED wrapper for all scib metrics from 
@@ -174,6 +175,15 @@ class ZeroShotEvaluator(ModelEmbeddingsMixin):
         print('done')
         return classification_metrics
 
+    def evaluate_pretraining_task(self, adata):
+        raise NotImplementedError
+
+    def evaluate_perturbation(self, adata_train, adata_test, perturbation_col):
+        print('getting embeddings')
+        train_latent_embeddings = self.get_embeddings(adata_train)
+        test_latent_embeddings = self.get_embeddings(adata_test)
+
+
 
 class VariableGeneZeroShotEvaluator(ZeroShotEvaluator):
     def __init__(self):
@@ -189,6 +199,7 @@ class PrincipalComponentsZeroShotEvaluator(ZeroShotEvaluator):
         return np.asarray(adata.obsm['X_pca'])
 
 
+
 class SSLZeroShotEvaluator(ZeroShotEvaluator):
     def __init__(self, model):
         self.model = model
@@ -198,6 +209,14 @@ class SSLZeroShotEvaluator(ZeroShotEvaluator):
         with torch.no_grad():
             latent_embeddings = self.model.encoder(torch.tensor(input_tensor))
         return latent_embeddings.numpy()
+    def evaluate_pretraining_task(self, adata):
+        input_tensor = adata.X.todense()
+        with torch.no_grad():
+            latent_embeddings = self.model.encoder(torch.tensor(input_tensor))
+            reconstructed_expression = self.model.decoder(latent_embeddings)
+            reconstructed_expression = reconstructed_expression.numpy()
+        mse = eval_expression_reconstruction_mse(adata.X, reconstructed_expression)
+        return {"MSE": mse}
 
 
 class SCVIZeroShotEvaluator(ZeroShotEvaluator):
@@ -207,8 +226,10 @@ class SCVIZeroShotEvaluator(ZeroShotEvaluator):
     def get_embeddings(self, adata):
         latent_embeddings = self.model.get_latent_representation(adata)
         return latent_embeddings
-
-
+    def evaluate_pretraining_task(self, adata):
+        normalized_expression = self.model.get_normalized_expression(adata, return_numpy=True)
+        mse = eval_expression_reconstruction_mse(adata.X, normalized_expression)
+        return {"MSE": mse}
 
 
 
@@ -306,5 +327,9 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
         shutil.rmtree(f"tmp_adata_{random_string}", ignore_errors=True)
 
         return self.geneform.cell_embeddings
+
+    def evaluate_pretraining_task(self, adata):
+        raise NotImplementedError # todo check this implementation
+
 
 
