@@ -127,5 +127,31 @@ python -u zero_shot_integration.py $METHOD $H5AD $LABEL_COL $BATCH_COL $DOWNSAMP
 - Periodontitis ([publication](https://www.nature.com/articles/s41467-024-49037-y), [CELLxGENE](https://cellxgene.cziscience.com/collections/71f4bccf-53d4-4c12-9e80-e73bfb89e398))
 - [Lung (Kim et al)](https://www.weizmann.ac.il/sites/3CA/lung)
 
+## Evaluating computational time taken to get embeddings for each model
+
+To evaluate how fast each model is run `timing_benchmark.py` as follows
+
+```bash
+# define variables for script arguments
+H5AD=idx_1pct_seed0_VAL.h5ad
+NUM_CELLS=1000
+
+# these are not important, they are just used to load our pre-trained models
+DOWNSAMPLING_METHOD=randomsplits
+PERCENTAGE=1
+SEED=0
+
+VAR_FILE=adata_var.csv
+FORMATTED_H5AD=sctab_format.h5ad
+
+GENEFORMER_DIR=/path/to/geneformer_models/
+SCVI_DIR=/path/to/scvi_models/
+SSL_DIR=/path/to/ssl_models/
+PRETRAINED_PCA_DIR=/path/to/pca_models/
+
+DICT_DIR=~/data/adenadel/scratch/Geneformer/geneformer
+
+python -u timing_benchmark.py $NUM_CELLS $H5AD $DOWNSAMPLING_METHOD $PERCENTAGE $SEED $VAR_FILE $FORMATTED_H5AD $DICT_DIR $SCVI_DIR $SSL_DIR $GENEFORMER_DIR $PRETRAINED_PCA_DIR
+```
 
 
