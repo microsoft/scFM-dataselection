@@ -6,12 +6,6 @@ import multiprocessing as mp
 from pathlib import Path
 import argparse
 
-import numpy as np
-import pandas as pd
-
-import anndata as ad
-import scanpy as sc
-
 from pytorch_lightning.callbacks import LearningRateMonitor
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -197,9 +191,6 @@ def main():
     parser.add_argument('--downsample')
     parser.add_argument('--seed')
 
-    ## bash script to run this:
-    # python train_SCimilarity.py --sctab /users/adenadel/data/sctab --percent 1 --downsample random --seed 0
-
     args = parser.parse_args()
     sctab_dir = args.sctab
     percent = args.percent
@@ -208,6 +199,10 @@ def main():
 
     train_h5ad = Path(sctab_dir) / downsample / f"idx_{percent}pct_seed{seed}/idx_{percent}pct_seed{seed}_TRAIN.h5ad"
     val_h5ad = Path(sctab_dir) / downsample / f"idx_{percent}pct_seed{seed}/idx_{percent}pct_seed{seed}_VAL.h5ad"
+
+    # scimilarity expects the h5ad files to be strings for writing out metadata
+    train_h5ad = str(train_h5ad)
+    val_h5ad = str(val_h5ad)
 
     prefix = f"SCimilarity_{downsample}_{percent}pct_seed{seed}"
     
