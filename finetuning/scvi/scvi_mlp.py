@@ -87,6 +87,8 @@ class ScviCellTypeAnnotationDataset(Dataset):
 
 
 def update_genes(fine_tune_adata, var_file, sctab_format):
+    if not 'feature_name' in fine_tune_adata.var.columns:
+        fine_tune_adata.var["feature_name"] = fine_tune_adata.var.index
     fine_tune_adata.var_names = fine_tune_adata.var.feature_name
     new_adata = prep_for_evaluation(fine_tune_adata, sctab_format, var_file)
     return new_adata
