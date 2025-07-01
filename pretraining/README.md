@@ -62,8 +62,14 @@ deepspeed --num_gpus=8 --num_nodes=1 train_scripts/geneformer/pretrain_geneforme
 
 
 ## SCimilarity
-Before pretraining SCimilarity we must normalize the training data. To do this, run the following commands (which will generate normalized h5ads for all train/test/eval splits)
+Before pre-training SCimilarity we must normalize the training data. To do this, run the following command (which will generate normalized h5ads for all train/test/eval splits)
 
 ```bash
 python create_normalized_h5ads.py --sctab_dir /path/to/sctab/ --var_file adata_var.csv --output_sctab_dir /path/to/output/
+```
+
+Then, to pre-train SCimilarity, run the following command (the sctab directory should contain subdirectories for each downsampling method):
+
+```bash
+python -u train_SCimilarity.py --sctab /path/to/normalized/sctab/basedir --percent 1 --downsample geometric_sketching --seed 1
 ```
