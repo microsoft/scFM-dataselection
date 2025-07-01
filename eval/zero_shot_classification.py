@@ -82,20 +82,24 @@ def get_classification_metrics_df(train_adata,
 
 
 def main():
+
     method = sys.argv[1]
     h5ad_file = sys.argv[2]
     label_col = sys.argv[3]
 
     downsampling_method = sys.argv[4]
-    percentage = int(sys.argv[5])
-    seed = int(sys.argv[6])
+    split = sys.argv[5]
 
-    var_file = sys.argv[7]
-    formatted_h5ad_file = sys.argv[8]
-    model_directory = sys.argv[9]
-    dict_dir = sys.argv[10]
+    var_file = sys.argv[6]
+    formatted_h5ad_file = sys.argv[7]
+    model_directory = sys.argv[8]
+    dict_dir = sys.argv[9]
+    out_dir = sys.argv[10]
 
-    dataset_name = h5ad_file.replace(".h5ad", "")
+    percentage = int(split.split("_")[-2][:-3])
+    seed = int(split.split("_")[-1][4:])
+
+    dataset_name = os.path.basename(h5ad_file).replace(".h5ad", "")
 
     print("loading anndata")
     adata = ad.read_h5ad(h5ad_file)
@@ -119,6 +123,11 @@ def main():
         # can't have slashes in loom files
         adata.obs.rename(
             columns={"Tooth #/Region": "Tooth #_Region"}, inplace=True)
+
+    if dataset_name in ['periodontitis', 'placenta', 'intestine']:
+        label_col = 'celltype'
+    elif dataset_name == 'hematopoiesis':
+        label_col = 'cell_type'
 
     if 'kim_lung' in h5ad_file:
         batch_cols = ["sample"]
@@ -161,7 +170,7 @@ def main():
 
     metrics_csv = f"zero_shot_classification_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
-    out_dir = "classification_results"
+    # out_dir = "classification_results"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     metrics_df.to_csv(out_dir + "/" + metrics_csv)

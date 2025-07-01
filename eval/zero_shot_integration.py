@@ -92,16 +92,20 @@ def main():
     batch_col = sys.argv[4]
 
     downsampling_method = sys.argv[5]
-    percentage = int(sys.argv[6])
-    seed = int(sys.argv[7])
+    split = sys.argv[6]
 
-    var_file = sys.argv[8]
-    formatted_h5ad_file = sys.argv[9]
-    model_directory = sys.argv[10]
+    var_file = sys.argv[7]
+    formatted_h5ad_file = sys.argv[8]
+    model_directory = sys.argv[9]
 
     dict_dir = sys.argv[10]
+    out_dir = sys.argv[11]
+    model_type_ssl = sys.argv[12]
 
-    dataset_name = h5ad_file.strip(".h5ad")
+    percentage = int(split.split("_")[-2][:-3])
+    seed = int(split.split("_")[-1][4:])
+
+    dataset_name = os.path.basename(h5ad_file).replace(".h5ad", "")
     metrics_csv = f"zero_shot_integration_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
     print("loading anndata")
@@ -114,12 +118,14 @@ def main():
             columns={"last_author/PI": "last_author_PI"}, inplace=True)
 
     if 'kim_lung' in h5ad_file:
-        batch_cols = ["sample"]
+        batch_col = "sample"
         label_col = "cell_type"
         # drop nans, some cell types don't have labels for kim lung dataset
         adata = adata[adata.obs['cell_type'].notna()]
 
-    if h5ad_file == "periodontitis.h5ad":
+    if 'periodontitis' in h5ad_file:
+        label_col = 'celltype'
+        batch_col = "Study"
         print("removing slashes from column name (incompatible with loom format)")
         # can't have slashes in loom files
         adata.obs.rename(columns={"Tooth #/Region": "Tooth #_Region"}, inplace=True)
@@ -145,7 +151,7 @@ def main():
 
     print(new_adata)
 
-    out_dir = "integration_results"
+    # out_dir = "integration_results"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
