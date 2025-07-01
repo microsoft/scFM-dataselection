@@ -59,3 +59,11 @@ EPOCHS=3
 
 deepspeed --num_gpus=8 --num_nodes=1 train_scripts/geneformer/pretrain_geneformer.py --gene normal --cluster normal --seed $SEED --pct $PCT --out $OUTPUT --datapath $TOKENIZED_DATAPATH --lengths $LENGTHS_FILE --epochs $EPOCHS
 ```
+
+
+## SCimilarity
+Before pretraining SCimilarity we must normalize the training data. To do this, run the following commands (which will generate normalized h5ads for all train/test/eval splits)
+
+```bash
+python create_normalized_h5ads.py --sctab_dir /path/to/sctab/ --var_file adata_var.csv --output_sctab_dir /path/to/output/
+```
