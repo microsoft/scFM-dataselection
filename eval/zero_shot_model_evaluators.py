@@ -1,34 +1,20 @@
 import os
-import abc
-from typing import Callable, Dict, List, Optional, Tuple, Union
-from collections import defaultdict
+from typing import Dict
 from pathlib import Path
 import shutil
 
 import random
 import string
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-import umap
-
 import numpy as np
-import pandas as pd
 
 from sklearn.neighbors import KNeighborsClassifier
-import sklearn.metrics
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torchmetrics import ExplainedVariance, MeanSquaredError, MetricCollection
-import lightning.pytorch as pl
 
-import anndata as ad
 from anndata import AnnData
 import scanpy as sc
-import scvi
-
+from scimilarity import CellEmbedding
 import scib
 
 from evaluation_utils import tokenize_adata, eval_classification_metrics
@@ -313,5 +299,18 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
         shutil.rmtree(f"tmp_adata_{random_string}", ignore_errors=True)
 
         return self.geneform.cell_embeddings
+
+
+
+class SCimilarityZeroShotEvaluator(ZeroShotEvaluator):
+    def __init__(self, model):
+        self.model = model
+        self.embedding_name = "X_SCimilarity"
+        self.ce = CellEmbedding(self.model)
+    def get_embeddings(self, adata):
+        embeddings = self.ce.get_embeddings(adata.X)
+        return embeddings
+
+
 
 
