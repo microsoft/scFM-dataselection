@@ -38,9 +38,9 @@ cd Geneformer
 pip install .
 ```
 
-Install `zero-shot-scfoundation` (this should only take 10 seconds)
+Install `zero-shot-scfoundation` (this should only take 10 seconds, this fork has a slight tweak to remove installing scGPT to run non-scGPT related code)
 ```
-git clone https://github.com/microsoft/zero-shot-scfoundation
+git clone https://github.com/agdenadel/zero-shot-scfoundation
 
 cd zero-shot-scfoundation
 pip install .
