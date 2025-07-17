@@ -181,3 +181,8 @@ def load_pca_model(downsampling_method, percentage, seed, pca_directory):
     return model
 
 
+def load_SCimilarity_model(downsampling_method, percentage, seed, SCimilarity_directory):
+    model_dir = Path(SCimilarity_directory) / f"SCimilarity_SCimilarity_{downsampling_method}_{percentage}pct_seed{seed}_1000_0.05_128_3_0.001"
+    return model_dir
+
+

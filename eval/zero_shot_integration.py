@@ -11,7 +11,7 @@ import scanpy as sc
 import pandas as pd
 
 from model_loaders import load_scvi_model, load_ssl_model
-from model_loaders import get_ssl_checkpoint_file, load_geneformer_model
+from model_loaders import get_ssl_checkpoint_file, load_geneformer_model, load_sc
 
 from zero_shot_model_evaluators import VariableGeneZeroShotEvaluator
 from zero_shot_model_evaluators import PrincipalComponentsZeroShotEvaluator
@@ -20,6 +20,7 @@ from zero_shot_model_evaluators import SCVIZeroShotEvaluator
 from zero_shot_model_evaluators import SSLZeroShotEvaluator
 from zero_shot_model_evaluators import GeneformerZeroShotEvaluator
 from zero_shot_model_evaluators import PretrainedPrincipalComponentsZeroShotEvaluator
+from zero_shot_model_evaluators import SCimilarityZeroShotEvaluator
 
 
 from evaluation_utils import prep_for_evaluation
@@ -67,6 +68,9 @@ def get_scib_metrics_df(adata,
     elif method == "PretrainedPCA": # todo test this
         pca_model = load_pca_model(downsampling_method, percentage, seed, model_directory)
         zero_shot_evaluator = PretrainedPrincipalComponentsZeroShotEvaluator(pca_model)
+    elif method == "SCimilarity":
+        scimilarity_model = load_SCimilarity_model(downsampling_method, percentage, seed, model_directory)
+        zero_shot_evaluator = SCimilarityZeroShotEvaluator(scimilarity_model)
 
     scib_metrics = zero_shot_evaluator.evaluate_integration(
         adata, batch_col=batch_col, label_col=label_col)
@@ -138,7 +142,7 @@ def main():
 
     new_adata = prep_for_evaluation(adata, formatted_h5ad_file, var_file)
 
-    if method == "SSL":
+    if method == "SSL" or method == "PretrainedPCA" or method == "SCimilarity":
         print("processing anndata")
         sc.pp.normalize_per_cell(new_adata, counts_per_cell_after=1e4)
         sc.pp.log1p(new_adata)
