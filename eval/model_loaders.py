@@ -128,6 +128,11 @@ def load_scvi_model(downsampling_method, percentage, seed, scvi_directory, h5ad_
 
     print(model_dir)
     model = scvi.model.SCVI.load(model_dir, adata=adata)
+
+    # when loading an untraind model we need to set is_trained to True
+    # otherwise scVI will raise an error when we try to use the model
+    if percentage == 0: 
+        model.is_trained = True
     return model
  
 def load_fine_tuned_scvi_model(downsampling_method, percentage, seed, pretrained_scvi_directory, h5ad_file, finetuned_scvi_directory, dataset_name, cell_type_column, num_classes):

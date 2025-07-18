@@ -14,7 +14,6 @@ import torch
 
 from anndata import AnnData
 import scanpy as sc
-from scimilarity import CellEmbedding
 import scib
 
 from evaluation_utils import tokenize_adata, eval_classification_metrics
@@ -316,6 +315,7 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
 
 class SCimilarityZeroShotEvaluator(ZeroShotEvaluator):
     def __init__(self, model):
+        from scimilarity import CellEmbedding
         self.model = model
         self.embedding_name = "X_SCimilarity"
         self.ce = CellEmbedding(self.model)
