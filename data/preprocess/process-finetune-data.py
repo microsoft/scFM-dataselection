@@ -6,6 +6,7 @@ import numpy as np
 import scanpy as sc
 import pandas as pd
 import os
+import sys
 
 parser = argparse.ArgumentParser(description="preprocess the sctab dataset")
 parser.add_argument("--datapath", type=str, required=True, help="path to h5ad dataset to be preprocessed. If processing the intestine data, please point to the top directory containing both intestine datasets")
@@ -23,6 +24,7 @@ obs_dict = {}
 os.makedirs(args.datapath, exist_ok=True)
 raw_full_data = args.datapath+"/"+args.dataname+".h5ad"
 
+
 if args.dataname == 'intestine':
     data1 = args.datapath+'/'+'intestine_on_chip_IFN.h5ad'
     data2 = args.datapath+'/'+'intestine_on_chip_media.h5ad'
@@ -39,9 +41,14 @@ elif args.dataname == 'pancreas_scib':
     pancreas = ad.read_h5ad(raw_full_data)
     pancreas.X = pancreas.layers['counts']
     pancreas.write_h5ad(raw_full_data)
+elif args.dataname == 'kidney' or args.dataname == 'ocular_atlas':
+    print('DATA NAME', args.dataname)
+    preprocess.get_raw_counts(raw_full_data)
+    sys.exit(0)
 else:
     preprocess.get_raw_counts(raw_full_data)
-    
+
+
 preprocess.train_test_split(data=raw_full_data, save_path=args.datapath, dataname=args.dataname)
 
 for split in ["TEST", "VAL", "TRAIN"]:
