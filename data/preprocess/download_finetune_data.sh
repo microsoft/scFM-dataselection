@@ -20,4 +20,9 @@ wget -O evaluation_data/intestine/intestine_on_chip_media.h5ad https://datasets.
 
 wget -O evaluation_data/periodontitis/periodontitis.h5ad https://datasets.cellxgene.cziscience.com/91796603-b12b-4d62-88cf-006957399338.h5ad
 
+wget -O evaluation_data/kidney/kidney.h5ad https://datasets.cellxgene.cziscience.com/0d2431dd-f185-47e1-be06-255f84304559.h5ad
+
+wget -O evaluation_data/ocular_atlas/ocular_atlas.h5ad https://datasets.cellxgene.cziscience.com/d83e9ec2-a079-48f1-aa06-694dc883f2fb.h5ad 
+
+
 
