@@ -11,17 +11,31 @@ from geneformer.perturber_utils import load_model as load_geneformer
 
 
 
-def find_latest_run_and_extract_checkpoint_ssl(ssl_dir, classifier=False):
+def find_latest_run_and_extract_checkpoint_ssl(ssl_dir, model_type='MLP', classifier=False):
     # List all items in the parent directory
     if classifier:
-        top_dir = ssl_dir + '/trained_models/final_models/classification/SSL_CN_MLP_50pnew_run0_None'
+        top_dir = ssl_dir + f'/trained_models/final_models/classification/SSL_CN_{model_type}_50pnew_run0_None'
     else:
-        top_dir = ssl_dir+'/trained_models/pretext_models/masking/CN_MLP_50p'
-        
-    runs = [f for f in os.listdir(top_dir+'/sc-SFM-eastus') if (os.path.isdir(os.path.join(top_dir+'/sc-SFM-eastus', f)))]
+        top_dir = ssl_dir+f'/trained_models/pretext_models/masking/CN_{model_type}_50p'
+
+
+    if '0pct' in top_dir:
+        if classifier:
+            print('classifier')
+            top_dir = ssl_dir + f'/trained_models/final_models/classification/SSL_trained_modelsnew_run0_None/'
+            runs = [f for f in os.listdir(top_dir+'/scFM-dataselection-reviews') if (os.path.isdir(os.path.join(top_dir+'/scFM-dataselection-reviews', f)))]
+            subdir_path = top_dir+'/scFM-dataselection-reviews/'+runs[0]
+            checkpoint_file = Path(subdir_path) / 'checkpoints' / 'last_checkpoint.ckpt'
+            return checkpoint_file
+        else:
+            checkpoint_file = os.path.join(top_dir, 'last_checkpoint.ckpt')
+            return checkpoint_file
+    
+    runs = [f for f in os.listdir(top_dir+'/scFM-dataselection') if (os.path.isdir(os.path.join(top_dir+'/scFM-dataselection', f)))]
     parent_dir = top_dir+'/wandb'
+        
     if len(runs) == 1:
-        subdir_path = top_dir+'/sc-SFM-eastus/'+runs[0]
+        subdir_path = top_dir+'/scFM-dataselection/'+runs[0]
         checkpoint_file = Path(subdir_path) / 'checkpoints' / 'last_checkpoint.ckpt'
         return checkpoint_file
     else:
@@ -56,19 +70,22 @@ def find_latest_run_and_extract_checkpoint_ssl(ssl_dir, classifier=False):
             return None
 
 
-def get_ssl_checkpoint_file(downsampling_method, percentage, seed, ssl_directory, classifier=False):
+def get_ssl_checkpoint_file(downsampling_method, percentage, seed, ssl_directory, classifier=False, model_type_ssl='MLP'):
     if downsampling_method == "celltype_reweighted":
         percentage = int(percentage) / 100
         
-    directory_prefix = f"{ssl_directory}/{downsampling_method}/idx_{percentage}pct_seed{seed}"
+    if classifier:
+        directory_prefix = ssl_directory
+    else:
+        directory_prefix = f"{ssl_directory}/{downsampling_method}/idx_{percentage}pct_seed{seed}"
+    print('directory prefix', directory_prefix)
+    return find_latest_run_and_extract_checkpoint_ssl(directory_prefix, classifier=classifier, model_type=model_type_ssl)
     
-    return find_latest_run_and_extract_checkpoint_ssl(directory_prefix, classifier=classifier)
-    
 
 
 
-def load_ssl_model(ssl_checkpoint_file):
-    from self_supervision.models.lightning_modules.cellnet_autoencoder import MLPAutoEncoder
+def load_ssl_model(ssl_checkpoint_file, model_type='MLP'):
+    from self_supervision.models.lightning_modules.cellnet_autoencoder import MLPAutoEncoder, MLPVariationalAutoEncoder
 
     # fixed model parameters
     gene_dim = 19331
@@ -78,10 +95,17 @@ def load_ssl_model(ssl_checkpoint_file):
 
     ssl_checkpoint = torch.load(ssl_checkpoint_file, map_location=torch.device('cpu'))
 
-    ssl_model = MLPAutoEncoder(gene_dim=gene_dim,
+    if model_type == 'VAE':
+        ssl_model = MLPVariationalAutoEncoder(gene_dim=gene_dim,
                           units_encoder=units_encoder,
                           units_decoder=units_decoder,
                           batch_size=batch_size)
+    else:
+        ssl_model = MLPAutoEncoder(gene_dim=gene_dim,
+                          units_encoder=units_encoder,
+                          units_decoder=units_decoder,
+                          batch_size=batch_size)
+    
     
     ssl_model.load_state_dict(ssl_checkpoint['state_dict'])
     ssl_model.eval()

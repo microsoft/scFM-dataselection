@@ -1,11 +1,12 @@
 """zero_shot_classification.py evaluates the performance of a pre-trained model
 on an unseen dataset without fine-tuning."""
+import os
+os.environ['OPENBLAS_NUM_THREADS'] = '8'
 import string
 import random
 from collections import defaultdict
 from pathlib import Path
 import sys
-import os
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import scanpy as sc
@@ -17,6 +18,7 @@ from zero_shot_model_evaluators import VariableGeneZeroShotEvaluator
 from zero_shot_model_evaluators import PrincipalComponentsZeroShotEvaluator
 from model_loaders import load_scvi_model, load_ssl_model
 from model_loaders import load_geneformer_model, get_ssl_checkpoint_file
+import os
 
 
 default_n_threads = 64
@@ -45,9 +47,13 @@ def get_classification_metrics_df(train_adata,
     elif method == "PCA":
         zero_shot_evaluator = PrincipalComponentsZeroShotEvaluator()
     elif method == "SSL":
+        if 'VAE' in model_directory:
+            model_type = 'VAE'
+        else:
+            model_type = 'MLP'
         ssl_checkpoint_file = get_ssl_checkpoint_file(
-            downsampling_method, percentage, seed, ssl_directory=model_directory)
-        ssl_model = load_ssl_model(ssl_checkpoint_file)
+            downsampling_method, percentage, seed, ssl_directory=model_directory, model_type_ssl=model_type)
+        ssl_model = load_ssl_model(ssl_checkpoint_file, model_type=model_type)
         zero_shot_evaluator = SSLZeroShotEvaluator(model=ssl_model)
     elif method == "scVI":
         scvi_model = load_scvi_model(
@@ -87,15 +93,20 @@ def main():
     label_col = sys.argv[3]
 
     downsampling_method = sys.argv[4]
-    percentage = int(sys.argv[5])
-    seed = int(sys.argv[6])
+    split = sys.argv[5]
 
-    var_file = sys.argv[7]
-    formatted_h5ad_file = sys.argv[8]
-    model_directory = sys.argv[9]
-    dict_dir = sys.argv[10]
+    var_file = sys.argv[6]
+    formatted_h5ad_file = sys.argv[7]
+    model_directory = sys.argv[8]
+    dict_dir = sys.argv[9]
+    out_dir = sys.argv[10]
 
-    dataset_name = h5ad_file.replace(".h5ad", "")
+    percentage = int(split.split("_")[-2][:-3])
+    seed = int(split.split("_")[-1][4:])
+
+    dataset_name = os.path.basename(h5ad_file).replace(".h5ad", "")
+
+    print('NEW EVAL', split, dataset_name, '\n')
 
     print("loading anndata")
     adata = ad.read_h5ad(h5ad_file)
@@ -113,8 +124,13 @@ def main():
         # can't have slashes in loom files
         adata.obs.rename(
             columns={"last_author/PI": "last_author_PI"}, inplace=True)
-      
-    if h5ad_file == "periodontitis.h5ad":
+
+    if dataset_name in ['periodontitis', 'placenta', 'intestine']:
+        label_col = 'celltype'
+    elif dataset_name == 'hematopoiesis':
+        label_col = 'cell_type'
+        
+    if "periodontitis.h5ad" in h5ad_file:
         print("removing slashes from column name (incompatible with loom format)")
         # can't have slashes in loom files
         adata.obs.rename(
@@ -125,6 +141,9 @@ def main():
         label_col = "cell_type"
         # drop nans, some cell types don't have labels for kim lung dataset
         adata = adata[adata.obs['cell_type'].notna()]
+
+    for col in adata.obs.columns:
+        adata.obs.rename(columns={col: col.replace("/", "_")}, inplace=True)
 
     new_adata = prep_for_evaluation(adata, formatted_h5ad_file, var_file)
 
@@ -161,7 +180,6 @@ def main():
 
     metrics_csv = f"zero_shot_classification_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
-    out_dir = "classification_results"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     metrics_df.to_csv(out_dir + "/" + metrics_csv)

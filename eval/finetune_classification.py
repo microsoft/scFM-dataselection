@@ -190,14 +190,13 @@ def main():
     out_dir = sys.argv[6]
     method = sys.argv[7]
     downsampling_method = sys.argv[8]
-    seed = sys.argv[9]
-    percentage = sys.argv[10]
-    sctab_format = sys.argv[11]
-    metadata_path = sys.argv[12]
-    cell_type_pickle_file = sys.argv[13]
-    geneformer_dict_dir = sys.argv[14]
-    pretrained_scvi_directory = sys.argv[15]
-    scvi_train_format_h5ad = sys.argv[16]
+    split = sys.argv[9]
+    sctab_format = sys.argv[10]
+    metadata_path = sys.argv[11]
+    cell_type_pickle_file = sys.argv[12]
+    geneformer_dict_dir = sys.argv[13]
+    pretrained_scvi_directory = sys.argv[14]
+    scvi_train_format_h5ad = sys.argv[15]
 
     cell_type_dict = None
     if method in ['Geneformer', "scVI", "logistic_regression"]:
@@ -206,6 +205,9 @@ def main():
 
     adata = ad.read_h5ad(h5ad_file)
     print('read in data')
+
+    percentage = int(split.split("_")[-2][:-3])
+    seed = int(split.split("_")[-1][4:])
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)

@@ -1,5 +1,6 @@
-import sys
 import os
+os.environ['OPENBLAS_NUM_THREADS'] = '64'
+import sys
 from collections import defaultdict
 import shutil
 import random
@@ -21,7 +22,6 @@ from zero_shot_model_evaluators import GeneformerZeroShotEvaluator
 
 from evaluation_utils import prep_for_evaluation
 
-
 def get_scib_metrics_df(adata,
                         dataset_name,
                         downsampling_method,
@@ -33,7 +33,8 @@ def get_scib_metrics_df(adata,
                         var_file,
                         method,
                         dict_dir,
-                        formatted_h5ad_file):
+                        formatted_h5ad_file, 
+                        model_type_ssl):
     metrics_dict = defaultdict(list)
 
     print(downsampling_method, percentage, seed)
@@ -44,9 +45,13 @@ def get_scib_metrics_df(adata,
     elif method == "PCA":
         zero_shot_evaluator = PrincipalComponentsZeroShotEvaluator()
     elif method == "SSL":
+        if 'VAE' in model_directory:
+            model_type = 'VAE'
+        else:
+            model_type = 'MLP'
         ssl_checkpoint_file = get_ssl_checkpoint_file(
-            downsampling_method, percentage, seed, ssl_directory=model_directory)
-        ssl_model = load_ssl_model(ssl_checkpoint_file)
+            downsampling_method, percentage, seed, ssl_directory=model_directory, model_type_ssl=model_type)
+        ssl_model = load_ssl_model(ssl_checkpoint_file, model_type=model_type)
         zero_shot_evaluator = SSLZeroShotEvaluator(model=ssl_model)
     elif method == "scVI":
         scvi_model = load_scvi_model(
@@ -92,16 +97,20 @@ def main():
     batch_col = sys.argv[4]
 
     downsampling_method = sys.argv[5]
-    percentage = int(sys.argv[6])
-    seed = int(sys.argv[7])
+    split = sys.argv[6]
 
-    var_file = sys.argv[8]
-    formatted_h5ad_file = sys.argv[9]
-    model_directory = sys.argv[10]
+    var_file = sys.argv[7]
+    formatted_h5ad_file = sys.argv[8]
+    model_directory = sys.argv[9]
 
     dict_dir = sys.argv[10]
+    out_dir = sys.argv[11]
+    model_type_ssl = sys.argv[12]
 
-    dataset_name = h5ad_file.strip(".h5ad")
+    percentage = int(split.split("_")[-2][:-3])
+    seed = int(split.split("_")[-1][4:])
+
+    dataset_name = os.path.basename(h5ad_file).replace(".h5ad", "")
     metrics_csv = f"zero_shot_integration_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
     print("loading anndata")
@@ -114,12 +123,14 @@ def main():
             columns={"last_author/PI": "last_author_PI"}, inplace=True)
 
     if 'kim_lung' in h5ad_file:
-        batch_cols = ["sample"]
+        batch_col = "sample"
         label_col = "cell_type"
         # drop nans, some cell types don't have labels for kim lung dataset
         adata = adata[adata.obs['cell_type'].notna()]
 
-    if h5ad_file == "periodontitis.h5ad":
+    if 'periodontitis' in h5ad_file:
+        label_col = 'celltype'
+        batch_col = "Study"
         print("removing slashes from column name (incompatible with loom format)")
         # can't have slashes in loom files
         adata.obs.rename(columns={"Tooth #/Region": "Tooth #_Region"}, inplace=True)
@@ -127,6 +138,17 @@ def main():
     if "scvi_pbmc" in h5ad_file:
         # make gene symbols the var index for scvi pbmc
         adata.var.index = adata.var.gene_symbols
+    
+    if 'ocular_atlas' in h5ad_file:
+        label_col = 'cell_type'
+        batch_col = 'assay'
+    
+    if 'kidney' in h5ad_file:
+        label_col = 'cell_type'
+        batch_col = 'assay'
+
+    for col in adata.obs.columns:
+        adata.obs.rename(columns={col: col.replace("/", "_")}, inplace=True)
 
     new_adata = prep_for_evaluation(adata, formatted_h5ad_file, var_file)
 
@@ -145,10 +167,6 @@ def main():
 
     print(new_adata)
 
-    out_dir = "integration_results"
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
     metrics_df = get_scib_metrics_df(new_adata,
                                      dataset_name,
                                      downsampling_method,
@@ -160,7 +178,8 @@ def main():
                                      var_file,
                                      method,
                                      dict_dir,
-                                     formatted_h5ad_file)
+                                     formatted_h5ad_file, 
+                                     model_type_ssl)
     print("Writing:", metrics_csv)
     metrics_df.to_csv(out_dir + "/" + metrics_csv)
 
