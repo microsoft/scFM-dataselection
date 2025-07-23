@@ -26,6 +26,12 @@ class Preprocess():
     def __init__(self):
         return 
 
+    def normalize_small_adata(self, adata):
+        sc.pp.normalize_per_cell(adata, counts_per_cell_after=1e4)
+        sc.pp.log1p(adata)
+        return adata
+
+
     def norm(self, datapath, output_file, finetune_data=False):
         """
         This function preprocesses Raw Counts stored in an AnnData file by normalizing to 10k counts and applying a log-transformation.
