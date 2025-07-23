@@ -193,7 +193,7 @@ class PretrainedPrincipalComponentsZeroShotEvaluator(ZeroShotEvaluator):
         self.embedding_name = "X_Pretrained_PCA"
         self.model = model
     def get_embeddings(self, adata):
-        return adata.X @ model
+        return adata.X @ self.model
 
 
 class SSLZeroShotEvaluator(ZeroShotEvaluator):
@@ -258,10 +258,13 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
         self.geneform.load_vocab(dict_dir)
 
     # adapted from https://github.com/microsoft/zero-shot-scfoundation/blob/main/notebooks/Geneformer_zero_shot.ipynb
-    def get_embeddings(self, adata):
+    def get_embeddings(self, adata, return_time_taken=False):
         random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
 
-        tokenized_data = tokenize_adata(adata, self.var_file, random_string)
+        # not actually used, but necessary for Kasia's code to work
+        label_col = "cell_type" #"str_labels"
+
+        tokenized_data = tokenize_adata(adata, self.var_file, random_string, label_col)
 
         dataset_name = "tmp"
         preprocessed_path = self.output_dir / f"prepocessed/{dataset_name}/"
@@ -291,8 +294,6 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
                                    gene_name_id_dict = self.geneform.gene_name_id,
                                    preprocessed_path = preprocessed_path)
 
-        # not actually used, but necessary for Kasia's code to work
-        label_col = "celltype" #"str_labels"
 
         self.geneform.tokenize_data(adata_path = os.path.join(preprocessed_path, f"{dataset_name}.loom"),
                                     dataset_path = preprocessed_path,
@@ -301,9 +302,18 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
         self.geneform.load_tokenized_dataset(os.path.join(preprocessed_path, f"{dataset_name}.dataset"))
         input_data = data.InputData(adata_dataset_path = os.path.join(preprocessed_path, f"{dataset_name}.loom"))
 
+        if return_time_taken:
+            import time
+            start_time = time.perf_counter()
+
+        # extract embeddings
         self.geneform.extract_embeddings(data = input_data,
                                     batch_size = batch_size, 
                                     layer = -2)
+        if return_time_taken:
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+
 
         # todo clean up files written in this process
         print("Removing tokenized data:", tokenized_data)
@@ -312,6 +322,8 @@ class GeneformerZeroShotEvaluator(ZeroShotEvaluator):
         print("Removing tmp adata dir:", f"tmp_adata_{random_string}")
         shutil.rmtree(f"tmp_adata_{random_string}", ignore_errors=True)
 
-        return self.geneform.cell_embeddings
+        if return_time_taken:
+            return (self.geneform.cell_embeddings, elapsed_time)
 
+        return self.geneform.cell_embeddings
 
