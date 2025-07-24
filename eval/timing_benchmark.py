@@ -10,12 +10,13 @@ print(pd.__version__)
 import anndata as ad
 
 from model_loaders import load_scvi_model, load_ssl_model, load_pca_model
-from model_loaders import load_geneformer_model, get_ssl_checkpoint_file
+from model_loaders import load_geneformer_model, get_ssl_checkpoint_file, load_SCimilarity_model
 
 from zero_shot_model_evaluators import SCVIZeroShotEvaluator
 from zero_shot_model_evaluators import SSLZeroShotEvaluator
 from zero_shot_model_evaluators import GeneformerZeroShotEvaluator
 from zero_shot_model_evaluators import PretrainedPrincipalComponentsZeroShotEvaluator
+from zero_shot_model_evaluators import SCimilarityZeroShotEvaluator
 
 def benchmark_timing(adata,
                      num_cells,
@@ -62,9 +63,12 @@ def benchmark_timing(adata,
                 f"tmp_zero_shot_classification_geneformer_{random_string}")
             zero_shot_evaluator = GeneformerZeroShotEvaluator(
                 geneformer_model, var_file, dict_dir, tmp_output_dir)
-        elif model == "PretrainedPCA": # todo test this
+        elif model == "PretrainedPCA":
             pca_model = load_pca_model(downsampling_method, percentage, seed, model_directory)
             zero_shot_evaluator = PretrainedPrincipalComponentsZeroShotEvaluator(pca_model)
+        elif model == "SCimilarity":
+            scimilarity_model = load_SCimilarity_model(downsampling_method, percentage, seed, model_directory)
+            zero_shot_evaluator = SCimilarityZeroShotEvaluator(scimilarity_model)
 
         
         # benchmark the time taken to get embeddings
@@ -132,6 +136,7 @@ def main():
     ssl_model_directory = sys.argv[10]
     geneformer_model_directory = sys.argv[11]
     pretrained_pca_model_directory = sys.argv[12]
+    scimilarity_model_directory = sys.argv[13]
 
     print("Loading data from", h5ad_file)
     adata = ad.read_h5ad(h5ad_file)
@@ -147,12 +152,13 @@ def main():
         var_file=var_file,
         dict_dir=dict_dir,
         formatted_h5ad_file=formatted_h5ad_file,
-        models=["SSL", "scVI", "Geneformer", "PretrainedPCA"],
+        models=["SSL", "scVI", "Geneformer", "PretrainedPCA", "SCimilarity"],
         model_directory_dict={
             "SSL": ssl_model_directory,
             "scVI": scvi_model_directory,
             "Geneformer": geneformer_model_directory,
-            "PretrainedPCA": pretrained_pca_model_directory
+            "PretrainedPCA": pretrained_pca_model_directory,
+            "SCimilarity": scimilarity_model_directory
             }
         )
 
