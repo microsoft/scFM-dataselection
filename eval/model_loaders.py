@@ -180,8 +180,8 @@ def load_pca_model(downsampling_method, percentage, seed, pca_directory):
     model = np.load(model_file)
     return model
 
-def load_fine_tuned_scvi_model(downsampling_method, percentage, seed, pretrained_pca_directory, h5ad_file, finetuned_pretrainedpca_directory, dataset_name, cell_type_column, num_classes):
-    from scvi_mlp import MLPClassifier # PCA uses the same MLPClassifier as scVI
+def load_fine_tuned_pretrainedpca_model(downsampling_method, percentage, seed, pretrained_pca_directory, finetuned_pretrainedpca_directory, dataset_name, cell_type_column, num_classes):
+    from pca_mlp import MLPClassifier # PCA uses the same MLPClassifier as scVI
     pretrained_model = load_pca_model(downsampling_method,
                                        percentage,
                                        seed,
