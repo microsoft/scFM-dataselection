@@ -16,22 +16,20 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 import anndata as ad
 
 from evaluation_utils import prep_for_evaluation
-from model_loaders import load_scvi_model
+from model_loaders import load_pca_model
 
 sys.path.append(os.path.abspath('eval'))
 print(sys.path)
 
 
 class MLPClassifier(L.LightningModule):
-    def __init__(self, n_classes, cell_type_column, n_input=10, n_hidden=128, dropout_rate=0.2):
+    def __init__(self, n_classes, cell_type_column, n_input=50, n_hidden=128, dropout_rate=0.2):
         # call LightningModule constructor
         super(MLPClassifier, self).__init__()
         self.dropout_rate = dropout_rate
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout_rate)
-        # n_iput 10=is the default for scVI
         self.layer1 = nn.Linear(n_input, n_hidden)
-        # n_hidden=128 is the default scVI's VAE
         self.layer2 = nn.Linear(n_hidden, n_classes)
         self.ce = nn.CrossEntropyLoss()
 
@@ -71,9 +69,9 @@ class MLPClassifier(L.LightningModule):
         return optimizer
 
 
-class ScviCellTypeAnnotationDataset(Dataset):
-    def __init__(self, adata, scvi_model, cell_type_column):
-        self.data = scvi_model.get_latent_representation(adata)
+class PcaCellTypeAnnotationDataset(Dataset):
+    def __init__(self, adata, pca_model, cell_type_column):
+        self.data adata.X @ pca_model
         self.cell_types = one_hot(torch.tensor(
             adata.obs[cell_type_column]).to(torch.int64)).numpy()
 
@@ -120,26 +118,24 @@ def map_celltypes(train_h5ad_file,
     return train_adata, val_adata
 
 
-def fine_tune_scvi(scvi_model_dir,
-                   scvi_train_h5ad_format,
-                   method,
-                   percentage,
-                   seed,
-                   train_adata,
-                   val_adata,
-                   cell_type_column):
+def fine_tune_pca(pca_model_dir,
+                  method,
+                  percentage,
+                  seed,
+                  train_adata,
+                  val_adata,
+                  cell_type_column):
     n_classes = train_adata.obs[cell_type_column].nunique()
-    pretrained_model = load_scvi_model(method,
-                                       percentage,
-                                       seed,
-                                       scvi_directory=scvi_model_dir,
-                                       h5ad_file=scvi_train_h5ad_format)
+    pretrained_model = load_pca_model(method,
+                                      percentage,
+                                      seed,
+                                      pca_directory)
 
     latent_dims = pretrained_model._module_kwargs['n_latent']
 
-    train_dataset = ScviCellTypeAnnotationDataset(
+    train_dataset = PcaCellTypeAnnotationDataset(
         train_adata, pretrained_model, cell_type_column)
-    val_dataset = ScviCellTypeAnnotationDataset(
+    val_dataset = PcaCellTypeAnnotationDataset(
         val_adata, pretrained_model, cell_type_column)
 
     # set up DataLoaders
@@ -171,7 +167,7 @@ def main():
     out_dir = sys.argv[7]
     method = sys.argv[8]
     seed = sys.argv[9]
-    percentage = int(sys.argv[10])
+    percentage = sys.argv[10]
     sctab_format = sys.argv[11]
     val_h5ad_file = sys.argv[12]
     celltype_pkl_savepath = sys.argv[13]
