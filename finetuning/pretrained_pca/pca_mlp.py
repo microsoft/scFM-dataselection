@@ -71,7 +71,7 @@ class MLPClassifier(L.LightningModule):
 
 class PcaCellTypeAnnotationDataset(Dataset):
     def __init__(self, adata, pca_model, cell_type_column):
-        self.data adata.X @ pca_model
+        self.data =adata.X @ pca_model
         self.cell_types = one_hot(torch.tensor(
             adata.obs[cell_type_column]).to(torch.int64)).numpy()
 
@@ -129,7 +129,7 @@ def fine_tune_pca(pca_model_dir,
     pretrained_model = load_pca_model(method,
                                       percentage,
                                       seed,
-                                      pca_directory)
+                                      pca_model_dir)
 
     latent_dims = pretrained_model._module_kwargs['n_latent']
 
@@ -181,7 +181,7 @@ def main():
         celltype_pkl_savepath)
 
     # train MLP classifier (that uses scVI embeddings)
-    classifier = fine_tune_scvi(scvi_model_dir,
+    classifier = fine_tune_pca(scvi_model_dir,
                                 scvi_train_h5ad_format,
                                 method,
                                 percentage,
