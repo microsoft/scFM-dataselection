@@ -117,7 +117,7 @@ class PretrainedPCAFinetuneEvaluator(FinetuneEvaluator):
         self.cell_type_dict = cell_type_dict
     def get_labels(self, adata):
         pca_embeddings =  adata.X @ self.pretrained_pca_model
-        y_hat = self.model.forward(torch.tensor(pca_embeddings))
+        y_hat = self.model.forward(torch.tensor(pca_embeddings, dtype=torch.float32))
         y_pred = y_hat.argmax(dim=1)
         y_true = adata.obs[self.cell_type_col].cat.rename_categories(self.cell_type_dict).to_numpy()
         return y_pred.numpy(), y_true
