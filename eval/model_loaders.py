@@ -185,6 +185,22 @@ def load_pca_model(downsampling_method, percentage, seed, pca_directory):
     model = np.load(model_file)
     return model
 
+def load_fine_tuned_pretrainedpca_model(downsampling_method, percentage, seed, pretrained_pca_directory, finetuned_pretrainedpca_directory, dataset_name, cell_type_column, num_classes):
+    from pca_mlp import MLPClassifier # PCA uses the same MLPClassifier as scVI
+    pretrained_model = load_pca_model(downsampling_method,
+                                       percentage,
+                                       seed,
+                                       pca_directory = pretrained_pca_directory)
+    
+    save_path = f"{finetuned_pretrainedpca_directory}/pretrainedpca_finetuned_model_{downsampling_method}_{percentage}pct_seed{seed}.pt"
+    latent_dims = pretrained_model.shape[1]  # the PCA model has shape (n_genes, n_components)
+    classifier = MLPClassifier(n_classes=num_classes,
+                               n_input=latent_dims,
+                               cell_type_column=cell_type_column)
+    classifier.load_state_dict(torch.load(save_path, weights_only=True))
+    classifier.eval()
+    return classifier
+
 
 def load_SCimilarity_model(downsampling_method, percentage, seed, SCimilarity_directory):
     model_dir = Path(SCimilarity_directory) / f"SCimilarity_SCimilarity_{downsampling_method}_{percentage}pct_seed{seed}_1000_0.05_128_3_0.001"

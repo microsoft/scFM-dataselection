@@ -107,6 +107,20 @@ class SCVIFinetuneEvaluator(FinetuneEvaluator):
         y_pred = y_hat.argmax(dim=1)
         y_true = adata.obs[self.cell_type_col].cat.rename_categories(self.cell_type_dict).to_numpy()
         return y_pred.numpy(), y_true
+    
+
+class PretrainedPCAFinetuneEvaluator(FinetuneEvaluator):
+    def __init__(self, mlp_model, pretrained_pca_model, cell_type_col, cell_type_dict):
+        self.model = mlp_model
+        self.pretrained_pca_model = pretrained_pca_model
+        self.cell_type_col = cell_type_col
+        self.cell_type_dict = cell_type_dict
+    def get_labels(self, adata):
+        pca_embeddings =  adata.X @ self.pretrained_pca_model
+        y_hat = self.model.forward(torch.tensor(pca_embeddings))
+        y_pred = y_hat.argmax(dim=1)
+        y_true = adata.obs[self.cell_type_col].cat.rename_categories(self.cell_type_dict).to_numpy()
+        return y_pred.numpy(), y_true
 
 
 
