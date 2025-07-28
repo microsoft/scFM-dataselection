@@ -41,7 +41,7 @@ def get_evaluator(method, model_directory, downsampling_method, percentage, seed
 
 
 def main():
-    scvi_model_dir = "/users/adenadel/data/adenadel/scFM_reviews/scvi_scaling/scvi_models_2x"
+    scvi_model_dir = "/users/adenadel/data/adenadel/scratch/scvi/scvi_models/"
     ssl_model_dir = "/users/adenadel/data/adenadel/scratch/final_scSFM_models/ssl_parquet"
     geneformer_model_dir = "/users/adenadel/data/adenadel/scratch/final_scSFM_models/geneformer-final-models-only"
     scimilarity_model_dir = "/users/adenadel/data/adenadel/scFM_reviews/SCimilarity/models_SCimilarity"
@@ -90,13 +90,14 @@ def main():
         var_file=None,
         dict_dir=None)
 
-    scvi_num_params = sum(p.numel() for p in scvi_evaluator.model.parameters())
+    scvi_num_params = sum(p.numel() for p in scvi_evaluator.model.module.parameters())
+    # 12,454,434
 
     ssl_num_params = sum(p.numel() for p in ssl_evaluator.model.parameters())
-    # 20767683
+    # 20,767,683
 
     geneformer_num_params = sum(p.numel() for p in geneformer_evaluator.geneform.model.parameters())
-    # 10288722
+    # 10,288,722
 
     scimilarity_num_params = sum(p.numel() for p in scimilarity_evaluator.ce.model.parameters())
-    # 22032515 # just encoder, double this for full model
+    # 22,032,515 # just encoder, double this for full model
