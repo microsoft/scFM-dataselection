@@ -1,3 +1,4 @@
+import sys
 import random
 import string
 from pathlib import Path
@@ -41,14 +42,14 @@ def get_evaluator(method, model_directory, downsampling_method, percentage, seed
 
 
 def main():
-    scvi_model_dir = "/users/adenadel/data/adenadel/scratch/scvi/scvi_models/"
-    ssl_model_dir = "/users/adenadel/data/adenadel/scratch/final_scSFM_models/ssl_parquet"
-    geneformer_model_dir = "/users/adenadel/data/adenadel/scratch/final_scSFM_models/geneformer-final-models-only"
-    scimilarity_model_dir = "/users/adenadel/data/adenadel/scFM_reviews/SCimilarity/models_SCimilarity"
+    scvi_model_dir = sys.argv[1]
+    ssl_model_dir = sys.argv[2]
+    geneformer_model_dir = sys.argv[3]
+    scimilarity_model_dir = sys.argv[4]
 
-    sctab_formatted_file = "/users/adenadel/data/sctab/random/idx_1pct_seed0/idx_1pct_seed0_TEST.h5ad"
-    var_file = "/users/adenadel/data/adenadel/scratch/new_eval/adata_var.csv"
-    dict_dir = "/users/adenadel/data/adenadel/scratch/Geneformer/geneformer"
+    sctab_formatted_file = sys.argv[5]
+    var_file = sys.argv[6]
+    dict_dir = sys.argv[7]
 
     scvi_evaluator = get_evaluator(
         method="scVI",
