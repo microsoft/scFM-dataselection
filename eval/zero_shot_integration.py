@@ -11,7 +11,7 @@ import scanpy as sc
 import pandas as pd
 
 from model_loaders import load_scvi_model, load_ssl_model
-from model_loaders import get_ssl_checkpoint_file, load_geneformer_model, load_sc
+from model_loaders import get_ssl_checkpoint_file, load_geneformer_model, load_SCimilarity_model
 
 from zero_shot_model_evaluators import VariableGeneZeroShotEvaluator
 from zero_shot_model_evaluators import PrincipalComponentsZeroShotEvaluator
