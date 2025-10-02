@@ -175,7 +175,3 @@ def eval_expression_reconstruction_mse(true, pred):
     mse = (np.square(true - pred)).mean(axis=None) # None gives grand average over full matrix
     return mse
 
-
-
-def eval_perturbation_metrics():
-    pass

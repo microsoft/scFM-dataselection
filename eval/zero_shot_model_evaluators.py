@@ -19,10 +19,7 @@ from sklearn.neighbors import KNeighborsClassifier
 import sklearn.metrics
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torchmetrics import ExplainedVariance, MeanSquaredError, MetricCollection
-import lightning.pytorch as pl
+
 
 import anndata as ad
 from anndata import AnnData

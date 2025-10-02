@@ -68,6 +68,8 @@ def get_ssl_checkpoint_file(downsampling_method, percentage, seed, ssl_directory
 
 
 def load_ssl_model(ssl_checkpoint_file):
+    # import for SSL inside function call to avoid importing when not needed
+    # SSL isn't installed in all environments
     from self_supervision.models.lightning_modules.cellnet_autoencoder import MLPAutoEncoder
 
     # fixed model parameters
@@ -89,6 +91,8 @@ def load_ssl_model(ssl_checkpoint_file):
     return ssl_model
 
 def load_ssl_classifier(ssl_checkpoint_file, type_dim, class_weights, child_matrix, batch_size):
+    # import for SSL inside function call to avoid importing when not needed
+    # SSL isn't installed in all environments
     from self_supervision.models.lightning_modules.cellnet_autoencoder import MLPClassifier
     # fixed model parameters
     gene_dim = 19331
@@ -171,3 +175,25 @@ def load_finetuned_geneformer_model(downsampling_method, percentage, seed, datas
     model_dir = geneformer_directory / downsampling_method / dataset_name / f"idx_{percentage}pct_seed{seed}"
 
     return model_dir
+
+
+def load_perturbation_model(model_name,
+                            perturbation,
+                            downsampling_method,
+                            percentage,
+                            seed,
+                            latent_dims,
+                            finetuned_model_directory):
+    from perturbation_finetuning import MLPPerturbationModel
+
+    save_path = f"{model_name}_{perturbation}_perturbation_finetuned_model_{downsampling_method}_{percentage}pct_seed{seed}.pt"
+
+    save_path = Path(finetuned_model_directory) / save_path
+
+    sctab_ngenes = 19331
+
+    perturbation_model = MLPPerturbationModel(n_input=latent_dims, n_output=sctab_ngenes)
+    perturbation_model.load_state_dict(torch.load(save_path, weights_only=True))
+
+    perturbation_model.eval()
+    return perturbation_model
