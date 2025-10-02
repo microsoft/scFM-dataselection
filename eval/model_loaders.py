@@ -162,6 +162,10 @@ def load_geneformer_model(downsampling_method, percentage, seed, geneformer_dire
 
     model_dir = geneformer_directory / downsampling_method / f"idx_{percentage}pct_seed{seed}"
 
+    # untrained models were manually saved using torch.save(model.state_dict(), model_path)
+    if percentage == 0:
+        model_dir = model_dir / "random" / "Geneformer_idx_0pct_seed{seed}.pth"
+
     return model_dir
 
 
@@ -204,6 +208,10 @@ def load_fine_tuned_pretrainedpca_model(downsampling_method, percentage, seed, p
 
 def load_SCimilarity_model(downsampling_method, percentage, seed, SCimilarity_directory):
     model_dir = Path(SCimilarity_directory) / f"SCimilarity_SCimilarity_{downsampling_method}_{percentage}pct_seed{seed}_1000_0.05_128_3_0.001"
+
+    # untrained models were manually saved using torch.save(model.state_dict(), model_path)
+    if percentage == 0:
+        model_dir = model_dir / "random" / f"SCimilarity_idx_0pct_seed{seed}.pth"
     return model_dir
 
 
