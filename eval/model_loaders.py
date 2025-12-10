@@ -69,6 +69,8 @@ def get_ssl_checkpoint_file(downsampling_method, percentage, seed, ssl_directory
 
 
 def load_ssl_model(ssl_checkpoint_file):
+    # import for SSL inside function call to avoid importing when not needed
+    # SSL isn't installed in all environments
     from self_supervision.models.lightning_modules.cellnet_autoencoder import MLPAutoEncoder
 
     # fixed model parameters
@@ -90,6 +92,8 @@ def load_ssl_model(ssl_checkpoint_file):
     return ssl_model
 
 def load_ssl_classifier(ssl_checkpoint_file, type_dim, class_weights, child_matrix, batch_size):
+    # import for SSL inside function call to avoid importing when not needed
+    # SSL isn't installed in all environments
     from self_supervision.models.lightning_modules.cellnet_autoencoder import MLPClassifier
     # fixed model parameters
     gene_dim = 19331
@@ -128,6 +132,11 @@ def load_scvi_model(downsampling_method, percentage, seed, scvi_directory, h5ad_
 
     print(model_dir)
     model = scvi.model.SCVI.load(model_dir, adata=adata)
+
+    # when loading an untraind model we need to set is_trained to True
+    # otherwise scVI will raise an error when we try to use the model
+    if percentage == 0: 
+        model.is_trained = True
     return model
  
 def load_fine_tuned_scvi_model(downsampling_method, percentage, seed, pretrained_scvi_directory, h5ad_file, finetuned_scvi_directory, dataset_name, cell_type_column, num_classes):
@@ -157,6 +166,10 @@ def load_geneformer_model(downsampling_method, percentage, seed, geneformer_dire
 
     model_dir = geneformer_directory / downsampling_method / f"idx_{percentage}pct_seed{seed}"
 
+    # untrained models were manually saved using torch.save(model.state_dict(), model_path)
+    if percentage == 0:
+        model_dir = model_dir / "random" / "Geneformer_idx_0pct_seed{seed}.pth"
+
     return model_dir
 
 
@@ -173,11 +186,56 @@ def load_finetuned_geneformer_model(downsampling_method, percentage, seed, datas
 
     return model_dir
 
+def load_perturbation_model(model_name,
+                            perturbation,
+                            downsampling_method,
+                            percentage,
+                            seed,
+                            latent_dims,
+                            finetuned_model_directory):
+    from perturbation_finetuning import MLPPerturbationModel
+
+    save_path = f"{model_name}_{perturbation}_perturbation_finetuned_model_{downsampling_method}_{percentage}pct_seed{seed}.pt"
+
+    save_path = Path(finetuned_model_directory) / save_path
+
+    sctab_ngenes = 19331
+
+    perturbation_model = MLPPerturbationModel(n_input=latent_dims, n_output=sctab_ngenes)
+    perturbation_model.load_state_dict(torch.load(save_path, weights_only=True))
+
+    perturbation_model.eval()
+    return perturbation_model
 
 def load_pca_model(downsampling_method, percentage, seed, pca_directory):
     model_dir = Path(pca_directory) / downsampling_method / f"idx_{percentage}pct_seed{seed}"
     model_file = model_dir / f"idx_{percentage}pct_seed{seed}_TRAIN.npy"
     model = np.load(model_file)
     return model
+
+def load_fine_tuned_pretrainedpca_model(downsampling_method, percentage, seed, pretrained_pca_directory, finetuned_pretrainedpca_directory, dataset_name, cell_type_column, num_classes):
+    from pca_mlp import MLPClassifier # PCA uses the same MLPClassifier as scVI
+    pretrained_model = load_pca_model(downsampling_method,
+                                       percentage,
+                                       seed,
+                                       pca_directory = pretrained_pca_directory)
+    
+    save_path = f"{finetuned_pretrainedpca_directory}/pretrainedpca_finetuned_model_{downsampling_method}_{percentage}pct_seed{seed}.pt"
+    latent_dims = pretrained_model.shape[1]  # the PCA model has shape (n_genes, n_components)
+    classifier = MLPClassifier(n_classes=num_classes,
+                               n_input=latent_dims,
+                               cell_type_column=cell_type_column)
+    classifier.load_state_dict(torch.load(save_path, weights_only=True))
+    classifier.eval()
+    return classifier
+
+
+def load_SCimilarity_model(downsampling_method, percentage, seed, SCimilarity_directory):
+    model_dir = Path(SCimilarity_directory) / f"SCimilarity_SCimilarity_{downsampling_method}_{percentage}pct_seed{seed}_1000_0.05_128_3_0.001"
+
+    # untrained models were manually saved using torch.save(model.state_dict(), model_path)
+    if percentage == 0:
+        model_dir = model_dir / "random" / f"SCimilarity_idx_0pct_seed{seed}.pth"
+    return model_dir
 
 

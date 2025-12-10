@@ -125,8 +125,7 @@ def add_n_counts_to_adata(adata):
     adata.obs["n_counts"] = counts_per_cell
     return adata
 
-
-def tokenize_adata(adata, var_file, dataset_name, cell_type_col):
+def tokenize_adata(adata, var_file, dataset_name, cell_type_col=None):
     adata = add_ensembl_ids_to_adata(adata, var_file)
     adata = add_n_counts_to_adata(adata)
     tmp_dir = Path(f"tmp_adata_{dataset_name}")
@@ -135,11 +134,14 @@ def tokenize_adata(adata, var_file, dataset_name, cell_type_col):
     adata.write(tmp_h5ad)
     output_directory = Path(f"tmp_tokenized_data_{dataset_name}")
     output_prefix_chunk = ""
-    tokenizer = TranscriptomeTokenizer({cell_type_col: cell_type_col}, nproc=8)
+    if cell_type_col:
+        attrs = {cell_type_col: cell_type_col}
+    else:
+        attrs = None
+    tokenizer = TranscriptomeTokenizer(attrs, nproc=8)
     tokenizer.tokenize_data(tmp_dir, output_directory,
                      output_prefix_chunk, file_format="h5ad")
     return str(output_directory) + ".dataset"
-
 
 def eval_classification_metrics(y_true, y_pred):
     """Computes metrics for cell type classificaiton given the true labels and the
@@ -169,3 +171,9 @@ def eval_classification_metrics(y_true, y_pred):
     }
 
     return classification_metrics_dict
+
+
+def eval_expression_reconstruction_mse(true, pred):
+    mse = (np.square(true - pred)).mean(axis=None) # None gives grand average over full matrix
+    return mse
+

@@ -20,9 +20,10 @@ from zero_shot_model_evaluators import SCVIZeroShotEvaluator
 from zero_shot_model_evaluators import SSLZeroShotEvaluator
 from zero_shot_model_evaluators import GeneformerZeroShotEvaluator
 from zero_shot_model_evaluators import PretrainedPrincipalComponentsZeroShotEvaluator
+from zero_shot_model_evaluators import SCimilarityZeroShotEvaluator
 
 
-from model_loaders import load_scvi_model, load_ssl_model, load_pca_model
+from model_loaders import load_scvi_model, load_ssl_model, load_pca_model, load_SCimilarity_model
 from model_loaders import load_geneformer_model, get_ssl_checkpoint_file
 
 
@@ -72,6 +73,9 @@ def get_classification_metrics_df(train_adata,
     elif method == "PretrainedPCA": # todo test this
         pca_model = load_pca_model(downsampling_method, percentage, seed, model_directory)
         zero_shot_evaluator = PretrainedPrincipalComponentsZeroShotEvaluator(pca_model)
+    elif method == "SCimilarity":
+        scimilarity_model = load_SCimilarity_model(downsampling_method, percentage, seed, model_directory)
+        zero_shot_evaluator = SCimilarityZeroShotEvaluator(scimilarity_model)
 
     classification_metrics = zero_shot_evaluator.evaluate_classification(
         train_adata, test_adata, cell_type_col)
@@ -104,9 +108,10 @@ def main():
     formatted_h5ad_file = sys.argv[8]
     model_directory = sys.argv[9]
     dict_dir = sys.argv[10]
+    output_dir = sys.argv[11]
 
-    dataset_name = h5ad_file.replace(".h5ad", "")
-
+    dataset_name = os.path.splitext(os.path.basename(h5ad_file))[0]
+    
     print("loading anndata")
     adata = ad.read_h5ad(h5ad_file)
 
@@ -123,7 +128,7 @@ def main():
         # can't have slashes in loom files
         adata.obs.rename(
             columns={"last_author/PI": "last_author_PI"}, inplace=True)
-      
+         
     if h5ad_file == "periodontitis.h5ad":
         print("removing slashes from column name (incompatible with loom format)")
         # can't have slashes in loom files
@@ -138,7 +143,7 @@ def main():
 
     new_adata = prep_for_evaluation(adata, formatted_h5ad_file, var_file)
 
-    if method == "SSL" or method == "PretrainedPCA":
+    if method == "SSL" or method == "PretrainedPCA" or method == "SCimilarity":
         print("processing anndata")
         sc.pp.normalize_per_cell(new_adata, counts_per_cell_after=1e4)
         sc.pp.log1p(new_adata)
@@ -171,10 +176,9 @@ def main():
 
     metrics_csv = f"zero_shot_classification_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
 
-    out_dir = "classification_results"
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-    metrics_df.to_csv(out_dir + "/" + metrics_csv)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    metrics_df.to_csv(os.path.join(output_dir, metrics_csv))
 
 
 if __name__ == "__main__":
