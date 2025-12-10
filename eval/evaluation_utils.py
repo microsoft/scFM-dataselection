@@ -171,3 +171,9 @@ def eval_classification_metrics(y_true, y_pred):
     }
 
     return classification_metrics_dict
+
+
+def eval_expression_reconstruction_mse(true, pred):
+    mse = (np.square(true - pred)).mean(axis=None) # None gives grand average over full matrix
+    return mse
+
