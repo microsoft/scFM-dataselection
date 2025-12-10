@@ -87,6 +87,8 @@ class ScviCellTypeAnnotationDataset(Dataset):
 
 
 def update_genes(fine_tune_adata, var_file, sctab_format):
+    if not 'feature_name' in fine_tune_adata.var.columns:
+        fine_tune_adata.var["feature_name"] = fine_tune_adata.var.index
     fine_tune_adata.var_names = fine_tune_adata.var.feature_name
     new_adata = prep_for_evaluation(fine_tune_adata, sctab_format, var_file)
     return new_adata
@@ -171,7 +173,7 @@ def main():
     out_dir = sys.argv[7]
     method = sys.argv[8]
     seed = sys.argv[9]
-    percentage = sys.argv[10]
+    percentage = int(sys.argv[10])
     sctab_format = sys.argv[11]
     val_h5ad_file = sys.argv[12]
     celltype_pkl_savepath = sys.argv[13]

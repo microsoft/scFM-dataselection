@@ -10,12 +10,16 @@ import anndata as ad
 
 from evaluation_utils import prep_for_evaluation
 
-from finetune_model_evaluators import GeneformerFinetuneEvaluator
 from finetune_model_evaluators import LogisticRegressionFineTuneEvaluator
-from finetune_model_evaluators import SSLFinetuneEvaluator, SCVIFinetuneEvaluator
+from finetune_model_evaluators import PretrainedPCAFinetuneEvaluator
+from finetune_model_evaluators import SCVIFinetuneEvaluator
+from finetune_model_evaluators import SSLFinetuneEvaluator
+from finetune_model_evaluators import GeneformerFinetuneEvaluator
+
 
 from model_loaders import load_scvi_model, get_ssl_checkpoint_file, load_ssl_classifier
 from model_loaders import load_finetuned_geneformer_model, load_fine_tuned_scvi_model
+from model_loaders import load_pca_model, load_fine_tuned_pretrainedpca_model
 
 
 DEFAULT_N_THREADS = 64
@@ -38,7 +42,7 @@ def get_classification_metrics_df(adata,
                                   geneformer_dict_dir,
                                   var_dir,
                                   cell_type_dict,
-                                  pretrained_scvi_directory,
+                                  pretrained_model_directory,
                                   scvi_train_format_h5ad):
 
     metrics_dict = defaultdict(list)
@@ -58,13 +62,35 @@ def get_classification_metrics_df(adata,
                                         batch_size=16384)
         finetune_evaluator = SSLFinetuneEvaluator(
             model=ssl_model, celltype_dict=cell_type_dict)
+    elif method == "PretrainedPCA":
+        num_classes = len(cell_type_dict)
+
+        fine_tuned_model = load_fine_tuned_pretrainedpca_model(
+            downsampling_method,
+            percentage,
+            seed,
+            pretrained_model_directory,
+            directory,
+            dataset_name,
+            cell_type_col,
+            num_classes)
+
+        pretrained_pca_model = load_pca_model(
+            downsampling_method,
+            percentage,
+            seed,
+            pretrained_model_directory)
+
+        finetune_evaluator = PretrainedPCAFinetuneEvaluator(fine_tuned_model, pretrained_pca_model, cell_type_col, cell_type_dict)
+
+
     elif method == "scVI":
         num_classes = len(cell_type_dict)
         fine_tuned_model = load_fine_tuned_scvi_model(
             downsampling_method,
             percentage,
             seed,
-            pretrained_scvi_directory,
+            pretrained_model_directory,
             scvi_train_format_h5ad,
             directory,
             dataset_name,
@@ -75,7 +101,7 @@ def get_classification_metrics_df(adata,
             downsampling_method,
             percentage,
             seed,
-            pretrained_scvi_directory,
+            pretrained_model_directory,
             scvi_train_format_h5ad)
 
         finetune_evaluator = SCVIFinetuneEvaluator(
@@ -125,10 +151,10 @@ def evaluate_anndata(model_directory,
                      sctab_format,
                      var_dir,
                      out_dir,
-                     metadata_path,
+                     ssl_metadata_path,
                      geneformer_dict_dir,
                      cell_type_dict,
-                     pretrained_scvi_directory,
+                     pretrained_model_directory,
                      scvi_train_format_h5ad):
     if dataset_name in ["pbmc", "tabula", "hlca"]:
         # sctab datasets need to have their var names added
@@ -146,11 +172,11 @@ def evaluate_anndata(model_directory,
 
     if method == "SSL":
         cell_type_dict = pd.read_parquet(
-            metadata_path+'/categorical_lookup/cell_type.parquet')
+            ssl_metadata_path+'/categorical_lookup/cell_type.parquet')
         type_dim = len(cell_type_dict)
-        class_weights = np.load(metadata_path+'/class_weights.npy')
+        class_weights = np.load(ssl_metadata_path+'/class_weights.npy')
         child_matrix = np.load(
-            metadata_path+'/cell_type_hierarchy/child_matrix.npy')
+            ssl_metadata_path+'/cell_type_hierarchy/child_matrix.npy')
 
         print("processing anndata")
 
@@ -171,7 +197,7 @@ def evaluate_anndata(model_directory,
                                                geneformer_dict_dir,
                                                var_dir,
                                                cell_type_dict,
-                                               pretrained_scvi_directory,
+                                               pretrained_model_directory,
                                                scvi_train_format_h5ad)
 
     metrics_csv = f"finetune_classification_metrics_{method}_{dataset_name}_downsamplingmethod_{downsampling_method}_percentage_{percentage}_seed_{seed}.csv"
@@ -191,21 +217,21 @@ def main():
     method = sys.argv[7]
     downsampling_method = sys.argv[8]
     seed = sys.argv[9]
-    percentage = sys.argv[10]
+    percentage = int(sys.argv[10])
     sctab_format = sys.argv[11]
-    metadata_path = sys.argv[12]
+    ssl_metadata_path = sys.argv[12]
     cell_type_pickle_file = sys.argv[13]
     geneformer_dict_dir = sys.argv[14]
-    pretrained_scvi_directory = sys.argv[15]
+    pretrained_model_directory = sys.argv[15] # for pretrained PCA and scVI
     scvi_train_format_h5ad = sys.argv[16]
 
     cell_type_dict = None
-    if method in ['Geneformer', "scVI", "logistic_regression"]:
+    if method in ['Geneformer', "scVI", "PretrainedPCA", "logistic_regression"]:
         with open(cell_type_pickle_file, 'rb') as fh:
             cell_type_dict = pickle.load(fh)
 
+    print('Loading adata from', h5ad_file)
     adata = ad.read_h5ad(h5ad_file)
-    print('read in data')
 
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
@@ -221,10 +247,10 @@ def main():
                      sctab_format,
                      var_dir,
                      out_dir,
-                     metadata_path,
+                     ssl_metadata_path,
                      geneformer_dict_dir,
                      cell_type_dict,
-                     pretrained_scvi_directory,
+                     pretrained_model_directory,
                      scvi_train_format_h5ad)
 
 

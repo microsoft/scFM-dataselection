@@ -1,7 +1,21 @@
 # Pre-Training
 
 
-This directory contains directories for pre-training `scVI`, `SSL`, `Geneformer`. We give instructions running the pre-training scripts for each of these below:
+This directory contains directories for pre-training `PCA`, `scVI`, `SSL`, `Geneformer`. We give instructions running the pre-training scripts for each of these below:
+
+## PCA
+
+```bash
+SAMPLING=geometric_sketching
+PCT=75
+SEED=23
+
+TRAIN_FILE=/path/to/sctab/$SAMPLING/idx_"$PCT"pct_seed"$SEED"/idx_"$PCT"pct_seed"$SEED"_TRAIN.h5ad
+OUTPUT_DIR=./pca_models/$SAMPLING/idx_"$PCT"pct_seed"$SEED"
+
+
+python -u train_pca.py -a $TRAIN_FILE -o $OUTPUT_DIR --var_file adata_var.csv
+```
 
 ## scVI
 
@@ -58,4 +72,18 @@ LENGTHS_FILE=./tokenized/idx_1pct_seed0_TRAIN_lengths.pkl
 EPOCHS=3
 
 deepspeed --num_gpus=8 --num_nodes=1 train_scripts/geneformer/pretrain_geneformer.py --gene normal --cluster normal --seed $SEED --pct $PCT --out $OUTPUT --datapath $TOKENIZED_DATAPATH --lengths $LENGTHS_FILE --epochs $EPOCHS
+```
+
+
+## SCimilarity
+Before pre-training SCimilarity we must normalize the training data. To do this, run the following command (which will generate normalized h5ads for all train/test/eval splits)
+
+```bash
+python create_normalized_h5ads.py --sctab_dir /path/to/sctab/ --var_file adata_var.csv --output_sctab_dir /path/to/output/
+```
+
+Then, to pre-train SCimilarity, run the following command (the sctab directory should contain subdirectories for each downsampling method):
+
+```bash
+python -u train_SCimilarity.py --sctab /path/to/normalized/sctab/basedir --percent 1 --downsample geometric_sketching --seed 1
 ```
