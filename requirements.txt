@@ -53,7 +53,7 @@ executing==2.0.1
 fastcluster==1.2.6
 fastjsonschema==2.19.1
 fbpca==1.0
-filelock==3.13.3
+filelock==3.20.1
 flax==0.8.3
 fonttools==4.54.1
 fqdn==1.5.1
