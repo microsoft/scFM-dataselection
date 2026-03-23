@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![bioRxiv](https://img.shields.io/badge/bioRxiv-Preprint-orange)](https://www.biorxiv.org/content/10.1101/2024.12.13.628448)
+[![DOI](https://zenodo.org/badge/958346596.svg)](https://doi.org/10.5281/zenodo.19173545)
 
 This repository contains the code that accompanies our paper, "Evaluating the role of pre-training dataset size and diversity on single-cell foundation model performance". You can find the preprint of the paper [here](https://www.biorxiv.org/content/10.1101/2024.12.13.628448v1).
 
