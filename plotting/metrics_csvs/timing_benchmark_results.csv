@@ -1,0 +1,7 @@
+,model,downsampling_method,percentage,seed,elapsed_time,num_cells
+0,SSL,randomsplits,1,0,1.226141780614853,10000
+1,scVI,randomsplits,1,0,3.8763975128531456,10000
+2,Geneformer+tokenization,randomsplits,1,0,174.4048289321363,10000
+3,Geneformer,randomsplits,1,0,116.25757170841098,10000
+4,Pre-trained PCA,random,1,0,0.5222514271736145,10000
+5,SCimilarity,random,1,0,1.663370568305254,10000
