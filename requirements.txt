@@ -55,7 +55,7 @@ fastjsonschema==2.19.1
 fbpca==1.0
 filelock==3.13.3
 flax==0.8.3
-fonttools==4.54.1
+fonttools==4.61.0
 fqdn==1.5.1
 frozenlist==1.4.1
 fsspec==2024.2.0
