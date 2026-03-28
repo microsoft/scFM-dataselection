@@ -45,7 +45,7 @@ descriptastorus==2.6.1
 dgl==2.1.0
 dgllife==0.3.2
 dill==0.3.8
-distributed==2024.1.1
+distributed==2026.1.1
 docker-pycreds==0.4.0
 docrep==0.3.2
 etils==1.8.0
