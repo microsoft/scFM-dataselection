@@ -109,7 +109,7 @@ jupyterlab_widgets==3.0.10
 kiwisolver==1.4.7
 legacy-api-wrap==1.4
 leidenalg==0.10.2
-lightning==2.1.4
+lightning==2.3.3
 lightning-utilities==0.11.2
 lit==18.1.4
 llvmlite==0.42.0
