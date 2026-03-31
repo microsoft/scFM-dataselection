@@ -185,7 +185,7 @@ parso==0.8.4
 partd==1.4.2
 patsy==0.5.6
 pexpect==4.9.0
-pillow==11.0.0
+pillow==12.1.1
 platformdirs==4.2.1
 plotly==5.22.0
 pretty-errors==1.2.25
