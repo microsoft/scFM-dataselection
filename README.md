@@ -12,6 +12,35 @@ In this project, we assess three model architectures pre-trained to perform as f
 
 Our evaluation uses two main tasks: cell type classification and batch integration. In these tasks, we compare the performance of scVI, SSL, and Geneformer against simple baselines and investigate the role of pre-training dataset size and diversity on downstream performance.
 
+## Pre-trained models
+
+The pre-trained model checkpoints are available on [Hugging Face](https://huggingface.co/microsoft/scFM-dataselection). To download the full collection (approximately 36.5 GB), install `huggingface_hub` and run:
+
+```python
+from huggingface_hub import snapshot_download
+
+snapshot_download(
+    repo_id="microsoft/scFM-dataselection",
+    local_dir="scFM-dataselection",
+)
+```
+
+From the downloaded directory, install its dependencies with `python -m pip install -r requirements.txt`. For example, to load an SSL checkpoint and run it on two sample inputs:
+
+```python
+import sys
+import torch
+
+sys.path.insert(0, "tools")
+from portable_models import load_model
+
+model = load_model("portable-checkpoints/ssl/random/idx_100pct_seed25")
+with torch.no_grad():
+    latent, reconstruction = model(torch.ones(2, 19331))
+```
+
+See the [model card](https://huggingface.co/microsoft/scFM-dataselection) for selective downloads, other model families, and input preprocessing requirements.
+
 ![Fig. 1: Strategy to assess the effects of pre-training dataset size and diversity on scFM performance. (A) Schematic of the downsampling approaches, sizes of downsampled pre-training datasets, and data splitting strategy. (B) An example of what evaluation performance might \textit{a priori} be expected to look like as a function of pre-training dataset size and diversity.](images/fig1_high_res.png)
 
 
